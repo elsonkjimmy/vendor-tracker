@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+@import '@fontsource-variable/inter';
+
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --color-cream: #f6f3ee;
+
+  --animate-toast-in: toast-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.15);
+  --animate-fade-up: fade-up 0.35s ease-out both;
+  --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes sheet-in {
+    from {
+      opacity: 1;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--color-cream);
+  color: #18181b;
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+}
