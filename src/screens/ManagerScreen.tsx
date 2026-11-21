@@ -1,33 +1,23 @@
 import {
-  BarChart3,
-  CalendarDays,
-  CheckCircle2,
   ChevronRight,
-  DollarSign,
   Edit2,
   KeyRound,
-  Package,
   PlusCircle,
-  Receipt,
   RotateCcw,
   Share2,
-  TrendingUp,
-  User,
 } from 'lucide-react'
 import { useState } from 'react'
 import { GainHero } from '../components/GainHero'
-import { formatDate, formatFCFA, formatNumber, formatShortDate } from '../lib/format'
+import { formatDate, formatFCFA } from '../lib/format'
 import { generateReceiptCanvasBlob, generateWhatsAppMessage, openWhatsApp } from '../lib/share'
 import type { DailySheet, DayTotals, Product, VendorUser } from '../types'
 
 interface ManagerScreenProps {
   activeTab: string
   totals: DayTotals
-  todaySheet: DailySheet
   allSheets: DailySheet[]
   products: Product[]
   user: VendorUser | null
-  currentPin: string
   onChangePin: (newPin: string) => Promise<void>
   onOpenNewDelivery: () => void
   onOpenClosing: () => void
@@ -40,11 +30,9 @@ interface ManagerScreenProps {
 export function ManagerScreen({
   activeTab,
   totals,
-  todaySheet,
   allSheets,
   products,
   user,
-  currentPin,
   onChangePin,
   onOpenNewDelivery,
   onOpenClosing,

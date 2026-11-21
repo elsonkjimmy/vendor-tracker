@@ -236,7 +236,6 @@ export default function App() {
               activeTab={driverTab}
               totals={totals}
               todaySheet={currentSheet}
-              products={products}
               clients={clients}
               onOpenNewDelivery={() => setShowDeliveryModal(true)}
               onOpenClosing={() => setShowClosingModal(true)}
@@ -246,11 +245,9 @@ export default function App() {
             <ManagerScreen
               activeTab={managerTab}
               totals={totals}
-              todaySheet={currentSheet}
               allSheets={allSheets}
               products={products}
               user={user}
-              currentPin={managerPin}
               onChangePin={handleChangePin}
               onOpenNewDelivery={() => setShowDeliveryModal(true)}
               onOpenClosing={() => setShowClosingModal(true)}

@@ -1,7 +1,6 @@
 import {
   AlertCircle,
   ArrowLeft,
-  ArrowUpRight,
   BarChart3,
   CheckCircle2,
   Clock,
@@ -11,12 +10,11 @@ import {
   Search,
   ShieldCheck,
   TrendingUp,
-  User,
   Users,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
-import { formatDate, formatFCFA, formatNumber, formatShortDate, timeAgo } from '../lib/format'
+import { formatFCFA, formatNumber, formatShortDate, timeAgo } from '../lib/format'
 import type { AdminOverviewResponse, AdminVendorEnriched } from '../types'
 
 interface AdminScreenProps {

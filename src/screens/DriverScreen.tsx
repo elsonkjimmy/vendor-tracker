@@ -1,7 +1,4 @@
 import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
   Package,
   Phone,
   PlusCircle,
@@ -9,20 +6,18 @@ import {
   RotateCcw,
   Share2,
   Store,
-  Truck,
   Wallet,
 } from 'lucide-react'
 import { useState } from 'react'
 import { GainHero } from '../components/GainHero'
 import { formatFCFA, formatNumber } from '../lib/format'
 import { generateReceiptCanvasBlob, generateWhatsAppMessage, openWhatsApp } from '../lib/share'
-import type { ClientBoutique, DailySheet, DayTotals, Product } from '../types'
+import type { ClientBoutique, DailySheet, DayTotals } from '../types'
 
 interface DriverScreenProps {
   activeTab: string
   totals: DayTotals
   todaySheet: DailySheet
-  products: Product[]
   clients: ClientBoutique[]
   onOpenNewDelivery: () => void
   onOpenClosing: () => void
@@ -33,7 +28,6 @@ export function DriverScreen({
   activeTab,
   totals,
   todaySheet,
-  products,
   clients,
   onOpenNewDelivery,
   onOpenClosing,

@@ -5,13 +5,10 @@ import {
   LogOut,
   Package,
   PlusCircle,
-  Receipt,
-  RotateCcw,
   Settings,
   ShieldCheck,
   Store,
   Truck,
-  Users,
   Wallet,
 } from 'lucide-react'
 import type { VendorUser } from '../types'
