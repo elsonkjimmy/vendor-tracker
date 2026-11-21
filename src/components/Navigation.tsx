@@ -45,7 +45,7 @@ export function Sidebar({
     { id: 'stock', label: 'Mon Stock', icon: Package },
     { id: 'wallet', label: 'Sacoche Caisse', icon: Wallet },
     { id: 'clients', label: 'Boutiques Clientes', icon: Store },
-    { id: 'settings', label: 'Réglages', icon: Settings },
+    { id: 'settings', label: 'Profil & Réglages', icon: Settings },
   ]
 
   const managerTabs = [
@@ -53,10 +53,11 @@ export function Sidebar({
     { id: 'history', label: 'Historique', icon: CalendarDays },
     { id: 'summary', label: 'Bilan & Gains', icon: BarChart3 },
     { id: 'products', label: 'Catalogue Produits', icon: Package },
-    { id: 'settings', label: 'Paramètres', icon: Settings },
+    { id: 'settings', label: 'Profil & Réglages', icon: Settings },
   ]
 
-  const currentTabs = mode === 'driver' ? driverTabs : managerTabs
+  const isDriverAccount = mode === 'driver'
+  const currentTabs = isDriverAccount ? driverTabs : managerTabs
 
   return (
     <aside className="hidden lg:flex w-72 shrink-0 flex-col justify-between bg-[#0b1120] p-5 text-slate-300 border-r border-slate-800/80 sticky top-0 h-screen">
@@ -67,17 +68,21 @@ export function Sidebar({
             type="button"
             onClick={() => onSwitchMode('landing')}
             className="flex items-center gap-3 text-left transition hover:opacity-90"
-            title="Retour à la page de présentation"
+            title="Retour à l'accueil"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20">
-              <Truck className="h-5 w-5 stroke-[2.4]" />
+              {isDriverAccount ? (
+                <Truck className="h-5 w-5 stroke-[2.4]" />
+              ) : (
+                <Store className="h-5 w-5 stroke-[2.4]" />
+              )}
             </div>
             <div>
               <span className="block font-black text-base tracking-tight text-white leading-none">
                 Vendor<span className="text-emerald-400">Tracker</span>
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
-                Distribution OS
+                {isDriverAccount ? 'Compte Livreur' : 'Compte Vendeur'}
               </span>
             </div>
           </button>
@@ -86,40 +91,10 @@ export function Sidebar({
             type="button"
             onClick={() => onSwitchMode('landing')}
             className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-slate-200 transition"
-            title="Page de présentation"
+            title="Accueil"
           >
             <Home className="h-4 w-4" />
           </button>
-        </div>
-
-        {/* Mode Selector Pill */}
-        <div className="rounded-2xl bg-slate-900/90 p-1 ring-1 ring-white/10">
-          <div className="grid grid-cols-2 gap-1 text-xs font-bold">
-            <button
-              type="button"
-              onClick={() => onSwitchMode('driver')}
-              className={`flex items-center justify-center gap-1.5 rounded-xl py-2 transition ${
-                mode === 'driver'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Truck className="h-3.5 w-3.5" />
-              Livreur
-            </button>
-            <button
-              type="button"
-              onClick={() => onSwitchMode('manager')}
-              className={`flex items-center justify-center gap-1.5 rounded-xl py-2 transition ${
-                mode === 'manager'
-                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
-                  : 'text-slate-400 hover:text-white'
-              }`}
-            >
-              <Store className="h-3.5 w-3.5" />
-              Gérant
-            </button>
-          </div>
         </div>
 
         {/* Quick Action Button */}
@@ -137,7 +112,7 @@ export function Sidebar({
         {/* Navigation Links */}
         <nav className="space-y-1">
           <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-            {mode === 'driver' ? 'Espace Terrain' : 'Gestion Boutique'}
+            {isDriverAccount ? 'Espace Livreur' : 'Gestion Boutique'}
           </p>
           {currentTabs.map(({ id, label, icon: Icon }) => {
             const isActive = mode !== 'admin' && activeTab === id
@@ -161,29 +136,29 @@ export function Sidebar({
             )
           })}
 
-          {/* Super Admin Section — always visible for quick access */}
-          <div className="pt-4 mt-4 border-t border-slate-800/80">
-            <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
-              Supervision
-            </p>
-            <button
-              type="button"
-              onClick={() => onSwitchMode('admin')}
-              className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
-                mode === 'admin'
-                  ? 'bg-purple-500/20 text-purple-200 font-bold ring-1 ring-purple-400/30'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
-              }`}
-            >
-              <span className="flex items-center gap-3">
-                <ShieldCheck className={`h-4 w-4 ${mode === 'admin' ? 'text-purple-400' : 'text-slate-500'}`} />
-                Super Admin
-              </span>
-              {user?.is_admin && (
+          {/* Super Admin — STRICTLY ONLY visible if authenticated as Super Admin */}
+          {user?.is_admin && (
+            <div className="pt-4 mt-4 border-t border-slate-800/80">
+              <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-purple-400">
+                Administration
+              </p>
+              <button
+                type="button"
+                onClick={() => onSwitchMode('admin')}
+                className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
+                  mode === 'admin'
+                    ? 'bg-purple-500/20 text-purple-200 font-bold ring-1 ring-purple-400/30'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+                }`}
+              >
+                <span className="flex items-center gap-3">
+                  <ShieldCheck className={`h-4 w-4 ${mode === 'admin' ? 'text-purple-400' : 'text-slate-500'}`} />
+                  Super Admin
+                </span>
                 <span className="h-2 w-2 rounded-full bg-purple-400" />
-              )}
-            </button>
-          </div>
+              </button>
+            </div>
+          )}
         </nav>
       </div>
 
@@ -191,11 +166,13 @@ export function Sidebar({
       <div className="rounded-2xl bg-slate-900/90 p-3.5 ring-1 ring-white/10">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 font-black text-xs text-emerald-400 ring-1 ring-emerald-500/20">
-            {(user?.name || 'ML').slice(0, 2).toUpperCase()}
+            {(user?.name || (isDriverAccount ? 'LV' : 'VD')).slice(0, 2).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate font-bold text-xs text-white">{user?.name || 'Mode Local'}</p>
-            <p className="truncate text-[11px] text-slate-400">{user?.phone || 'Hors connexion cloud'}</p>
+            <p className="truncate font-bold text-xs text-white">
+              {user?.name || (isDriverAccount ? 'Livreur Local' : 'Vendeur Local')}
+            </p>
+            <p className="truncate text-[11px] text-slate-400">{user?.phone || 'Non connecté'}</p>
           </div>
           {user && onLogout ? (
             <button
@@ -236,7 +213,7 @@ export function BottomNav({ mode, activeTab, onSelectTab }: BottomNavProps) {
     { id: 'stock', label: 'Stock', icon: Package },
     { id: 'wallet', label: 'Sacoche', icon: Wallet },
     { id: 'clients', label: 'Boutiques', icon: Store },
-    { id: 'settings', label: 'Réglages', icon: Settings },
+    { id: 'settings', label: 'Profil', icon: Settings },
   ]
 
   const managerTabs = [
@@ -244,7 +221,7 @@ export function BottomNav({ mode, activeTab, onSelectTab }: BottomNavProps) {
     { id: 'history', label: 'Historique', icon: CalendarDays },
     { id: 'summary', label: 'Bilan', icon: BarChart3 },
     { id: 'products', label: 'Produits', icon: Package },
-    { id: 'settings', label: 'Réglages', icon: Settings },
+    { id: 'settings', label: 'Profil', icon: Settings },
   ]
 
   const tabs = mode === 'driver' ? driverTabs : managerTabs
