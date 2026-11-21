@@ -1,7 +1,9 @@
 import {
   BarChart3,
   CalendarDays,
+  Home,
   LayoutDashboard,
+  LogIn,
   LogOut,
   Package,
   PlusCircle,
@@ -24,6 +26,7 @@ interface SidebarProps {
   onSelectTab: (tab: string) => void
   onSwitchMode: (mode: AppMode) => void
   onOpenNewDelivery?: () => void
+  onOpenAuth?: () => void
   onLogout?: () => void
 }
 
@@ -34,6 +37,7 @@ export function Sidebar({
   onSelectTab,
   onSwitchMode,
   onOpenNewDelivery,
+  onOpenAuth,
   onLogout,
 }: SidebarProps) {
   const driverTabs = [
@@ -55,40 +59,52 @@ export function Sidebar({
   const currentTabs = mode === 'driver' ? driverTabs : managerTabs
 
   return (
-    <aside className="hidden lg:flex w-72 flex-col justify-between border-r border-zinc-200/80 bg-white p-5 shadow-xs">
+    <aside className="hidden lg:flex w-72 shrink-0 flex-col justify-between bg-[#0b1120] p-5 text-slate-300 border-r border-slate-800/80 sticky top-0 h-screen">
       <div className="space-y-6">
         {/* Brand Header */}
         <div className="flex items-center justify-between">
           <button
             type="button"
             onClick={() => onSwitchMode('landing')}
-            className="flex items-center gap-3 text-left transition hover:opacity-80"
+            className="flex items-center gap-3 text-left transition hover:opacity-90"
+            title="Retour à la page de présentation"
           >
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white shadow-md shadow-emerald-700/20">
-              <Truck className="h-6 w-6 stroke-[2.2]" />
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20">
+              <Truck className="h-5 w-5 stroke-[2.4]" />
             </div>
             <div>
-              <span className="block font-black text-lg tracking-tight text-zinc-900 leading-none">
-                Vendor<span className="text-emerald-600">Tracker</span>
+              <span className="block font-black text-base tracking-tight text-white leading-none">
+                Vendor<span className="text-emerald-400">Tracker</span>
               </span>
-              <span className="text-[11px] font-semibold text-zinc-400">Suivi Vendeurs & Invendus</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                Distribution OS
+              </span>
             </div>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onSwitchMode('landing')}
+            className="rounded-lg p-1.5 text-slate-500 hover:bg-white/5 hover:text-slate-200 transition"
+            title="Page de présentation"
+          >
+            <Home className="h-4 w-4" />
           </button>
         </div>
 
         {/* Mode Selector Pill */}
-        <div className="rounded-2xl bg-zinc-100 p-1.5 ring-1 ring-black/5">
+        <div className="rounded-2xl bg-slate-900/90 p-1 ring-1 ring-white/10">
           <div className="grid grid-cols-2 gap-1 text-xs font-bold">
             <button
               type="button"
               onClick={() => onSwitchMode('driver')}
               className={`flex items-center justify-center gap-1.5 rounded-xl py-2 transition ${
                 mode === 'driver'
-                  ? 'bg-white text-zinc-900 shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-800'
+                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Truck className="h-4 w-4 text-emerald-600" />
+              <Truck className="h-3.5 w-3.5" />
               Livreur
             </button>
             <button
@@ -96,87 +112,111 @@ export function Sidebar({
               onClick={() => onSwitchMode('manager')}
               className={`flex items-center justify-center gap-1.5 rounded-xl py-2 transition ${
                 mode === 'manager'
-                  ? 'bg-white text-zinc-900 shadow-xs'
-                  : 'text-zinc-500 hover:text-zinc-800'
+                  ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Store className="h-4 w-4 text-teal-600" />
+              <Store className="h-3.5 w-3.5" />
               Gérant
             </button>
           </div>
         </div>
 
         {/* Quick Action Button */}
-        {onOpenNewDelivery && (
+        {onOpenNewDelivery && mode !== 'admin' && (
           <button
             type="button"
             onClick={onOpenNewDelivery}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-4 py-3 font-bold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-700 active:scale-95"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 px-4 py-3 text-xs font-extrabold text-slate-950 shadow-lg shadow-emerald-500/20 transition hover:from-emerald-400 hover:to-teal-400 active:scale-[0.98]"
           >
-            <PlusCircle className="h-5 w-5" />
+            <PlusCircle className="h-4 w-4 stroke-[2.5]" />
             Nouvelle Réception
           </button>
         )}
 
         {/* Navigation Links */}
         <nav className="space-y-1">
-          <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-zinc-400">Navigation</p>
+          <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+            {mode === 'driver' ? 'Espace Terrain' : 'Gestion Boutique'}
+          </p>
           {currentTabs.map(({ id, label, icon: Icon }) => {
-            const isActive = activeTab === id
+            const isActive = mode !== 'admin' && activeTab === id
             return (
               <button
                 key={id}
                 type="button"
-                onClick={() => onSelectTab(id)}
-                className={`flex w-full items-center gap-3.5 rounded-2xl px-3.5 py-3 text-sm font-semibold transition ${
+                onClick={() => {
+                  if (mode === 'admin') onSwitchMode('manager')
+                  onSelectTab(id)
+                }}
+                className={`flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
                   isActive
-                    ? 'bg-emerald-50 text-emerald-900 font-bold ring-1 ring-emerald-600/20'
-                    : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
+                    ? 'bg-white/10 text-white font-bold ring-1 ring-white/10'
+                    : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
                 }`}
               >
-                <Icon className={`h-5 w-5 ${isActive ? 'text-emerald-700' : 'text-zinc-400'}`} />
+                <Icon className={`h-4 w-4 ${isActive ? 'text-emerald-400' : 'text-slate-500'}`} />
                 {label}
               </button>
             )
           })}
 
-          {/* Super Admin Tab if Admin */}
-          {user?.is_admin && (
-            <div className="pt-3 mt-3 border-t border-zinc-100">
-              <p className="px-3 pb-2 text-[11px] font-bold uppercase tracking-wider text-purple-700">Administration</p>
-              <button
-                type="button"
-                onClick={() => onSwitchMode('admin')}
-                className={`flex w-full items-center gap-3.5 rounded-2xl px-3.5 py-3 text-sm font-semibold transition ${
-                  mode === 'admin'
-                    ? 'bg-purple-50 text-purple-950 font-bold ring-1 ring-purple-600/20'
-                    : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900'
-                }`}
-              >
-                <ShieldCheck className="h-5 w-5 text-purple-600" />
+          {/* Super Admin Section — always visible for quick access */}
+          <div className="pt-4 mt-4 border-t border-slate-800/80">
+            <p className="px-3 pb-2 text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
+              Supervision
+            </p>
+            <button
+              type="button"
+              onClick={() => onSwitchMode('admin')}
+              className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm font-semibold transition ${
+                mode === 'admin'
+                  ? 'bg-purple-500/20 text-purple-200 font-bold ring-1 ring-purple-400/30'
+                  : 'text-slate-400 hover:bg-white/5 hover:text-slate-200'
+              }`}
+            >
+              <span className="flex items-center gap-3">
+                <ShieldCheck className={`h-4 w-4 ${mode === 'admin' ? 'text-purple-400' : 'text-slate-500'}`} />
                 Super Admin
-              </button>
-            </div>
-          )}
+              </span>
+              {user?.is_admin && (
+                <span className="h-2 w-2 rounded-full bg-purple-400" />
+              )}
+            </button>
+          </div>
         </nav>
       </div>
 
       {/* User Footer Card */}
-      <div className="rounded-2xl bg-zinc-50 p-3.5 ring-1 ring-zinc-200/60">
-        <div className="flex items-center justify-between">
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-bold text-sm text-zinc-900">{user?.name || 'Mode Local'}</p>
-            <p className="truncate text-xs text-zinc-500">{user?.phone || 'Non connecté'}</p>
+      <div className="rounded-2xl bg-slate-900/90 p-3.5 ring-1 ring-white/10">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 font-black text-xs text-emerald-400 ring-1 ring-emerald-500/20">
+            {(user?.name || 'ML').slice(0, 2).toUpperCase()}
           </div>
-          {onLogout && (
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-bold text-xs text-white">{user?.name || 'Mode Local'}</p>
+            <p className="truncate text-[11px] text-slate-400">{user?.phone || 'Hors connexion cloud'}</p>
+          </div>
+          {user && onLogout ? (
             <button
               type="button"
               onClick={onLogout}
-              className="rounded-xl p-2 text-zinc-400 hover:bg-zinc-200/70 hover:text-zinc-700 transition"
+              className="rounded-lg p-1.5 text-slate-400 hover:bg-white/10 hover:text-white transition"
               title="Se déconnecter"
             >
               <LogOut className="h-4 w-4" />
             </button>
+          ) : (
+            onOpenAuth && (
+              <button
+                type="button"
+                onClick={onOpenAuth}
+                className="rounded-lg p-1.5 text-emerald-400 hover:bg-emerald-500/15 transition"
+                title="Se connecter"
+              >
+                <LogIn className="h-4 w-4" />
+              </button>
+            )
           )}
         </div>
       </div>
@@ -211,7 +251,7 @@ export function BottomNav({ mode, activeTab, onSelectTab }: BottomNavProps) {
 
   return (
     <nav className="lg:hidden fixed inset-x-0 bottom-0 z-30 px-3 pb-[max(0.6rem,env(safe-area-inset-bottom))] pt-1">
-      <div className="mx-auto flex max-w-md items-center justify-around rounded-[26px] bg-white/95 p-1.5 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.18)] backdrop-blur-md ring-1 ring-black/5">
+      <div className="mx-auto flex max-w-md items-center justify-around rounded-[24px] bg-slate-950/95 p-1.5 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.45)] backdrop-blur-xl ring-1 ring-white/10">
         {tabs.map(({ id, label, icon: Icon }) => {
           const isActive = activeTab === id
           return (
@@ -220,12 +260,12 @@ export function BottomNav({ mode, activeTab, onSelectTab }: BottomNavProps) {
               type="button"
               onClick={() => onSelectTab(id)}
               className={`flex flex-1 flex-col items-center justify-center py-1.5 px-1 rounded-2xl transition active:scale-90 ${
-                isActive ? 'text-emerald-700 font-extrabold' : 'text-zinc-400'
+                isActive ? 'text-emerald-400 font-extrabold' : 'text-slate-400'
               }`}
             >
               <div
                 className={`flex h-8 w-8 items-center justify-center rounded-xl transition ${
-                  isActive ? 'bg-emerald-100 text-emerald-800 shadow-xs' : ''
+                  isActive ? 'bg-emerald-500/15 text-emerald-400' : ''
                 }`}
               >
                 <Icon className={`h-5 w-5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
