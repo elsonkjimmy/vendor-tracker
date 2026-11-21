@@ -117,10 +117,19 @@ export default function App() {
     }
   }
 
-  // Handlers
+  // Strict account separation handler
   const handleSwitchMode = (targetMode: AppMode) => {
-    if (targetMode === 'manager' && !managerUnlocked) {
-      setShowPinDialog(true)
+    if (targetMode === 'admin') {
+      if (!user?.is_admin) {
+        notify('error', 'Accès réservé', 'Seul le compte Super Administrateur peut accéder à cette vue.')
+        return
+      }
+      setMode('admin')
+      return
+    }
+    if (targetMode === 'manager' && !managerUnlocked && mode === 'landing') {
+      setManagerUnlocked(true)
+      setMode('manager')
       return
     }
     setMode(targetMode)
@@ -130,7 +139,7 @@ export default function App() {
     setManagerUnlocked(true)
     setShowPinDialog(false)
     setMode('manager')
-    notify('info', 'Espace Gérant déverrouillé')
+    notify('info', 'Espace Vendeur déverrouillé')
   }
 
   const handleSaveDelivery = async (items: DeliveryItem[], supplierName?: string) => {
@@ -215,6 +224,13 @@ export default function App() {
     }
   }
 
+  const handleToggleProductActive = async (p: Product) => {
+    const updated: Product = { ...p, is_active: !p.is_active, updated_at: new Date().toISOString() }
+    await db.saveProduct(updated)
+    setProducts((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
+    notify('info', updated.is_active ? 'Produit réactivé' : 'Produit désactivé', updated.name)
+  }
+
   const handleDeleteProduct = async (id: string) => {
     const p = products.find((prod) => prod.id === id)
     if (p) {
@@ -223,6 +239,16 @@ export default function App() {
       setProducts((prev) => prev.filter((prod) => prod.id !== id))
       notify('info', 'Produit supprimé', p.name)
     }
+  }
+
+  const handleImportBackup = async (data: { products?: Product[]; sheets?: DailySheet[] }) => {
+    if (Array.isArray(data.products)) {
+      for (const p of data.products) await db.saveProduct(p)
+    }
+    if (Array.isArray(data.sheets)) {
+      for (const s of data.sheets) await db.saveSheet(s)
+    }
+    await loadData()
   }
 
   const handleChangePin = async (newPin: string) => {
@@ -235,13 +261,22 @@ export default function App() {
     setToken(newToken)
     setUser(newUser)
     notify('success', `Bienvenue, ${newUser.name}`, 'Votre session Cloud est active.')
+    if (newUser.is_admin) {
+      setMode('admin')
+    } else if (newUser.account_type === 'driver') {
+      setMode('driver')
+    } else {
+      setManagerUnlocked(true)
+      setMode('manager')
+    }
   }
 
   const handleLogout = async () => {
     await db.setAuthSession(null, null)
     setToken(null)
     setUser(null)
-    notify('info', 'Déconnecté', 'Vous êtes repassé en mode local hors-ligne.')
+    if (mode === 'admin') setMode('landing')
+    notify('info', 'Déconnecté', 'Vous avez été déconnecté de votre compte.')
   }
 
   // --- RENDER LANDING PAGE ---
@@ -255,16 +290,11 @@ export default function App() {
             setMode('manager')
           }}
           onOpenDriver={() => setMode('driver')}
-          onOpenAdmin={() => setMode('admin')}
           onOpenAuth={() => setShowAuthModal(true)}
         />
         {showAuthModal && (
           <AuthModal
-            onSuccess={(t, u) => {
-              void handleAuthSuccess(t, u)
-              setManagerUnlocked(true)
-              setMode(u.is_admin ? 'admin' : 'manager')
-            }}
+            onSuccess={(t, u) => void handleAuthSuccess(t, u)}
             onClose={() => setShowAuthModal(false)}
           />
         )}
@@ -309,7 +339,7 @@ export default function App() {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full pb-24 lg:pb-12">
-          {mode === 'admin' ? (
+          {mode === 'admin' && user?.is_admin ? (
             <AdminScreen
               token={token}
               onBack={() => setMode('manager')}
@@ -321,18 +351,29 @@ export default function App() {
               activeTab={driverTab}
               totals={totals}
               todaySheet={currentSheet}
+              allSheets={allSheets}
+              products={products}
               clients={clients}
+              user={user}
+              syncing={syncing}
+              onSyncNow={() => void handleSyncNow()}
               onOpenNewDelivery={() => setShowDeliveryModal(true)}
               onOpenClosing={() => setShowClosingModal(true)}
-              onSwitchToManager={() => handleSwitchMode('manager')}
+              onOpenAuth={() => setShowAuthModal(true)}
+              onLogout={handleLogout}
+              onImportBackup={handleImportBackup}
+              onNotify={notify}
             />
           ) : (
             <ManagerScreen
               activeTab={managerTab}
+              activeDate={activeDate}
               totals={totals}
               allSheets={allSheets}
               products={products}
               user={user}
+              syncing={syncing}
+              onSyncNow={() => void handleSyncNow()}
               onChangePin={handleChangePin}
               onOpenNewDelivery={() => setShowDeliveryModal(true)}
               onOpenClosing={() => setShowClosingModal(true)}
@@ -340,12 +381,14 @@ export default function App() {
                 setSelectedProduct(p || null)
                 setShowProductModal(true)
               }}
+              onToggleProductActive={handleToggleProductActive}
               onSelectDate={(date) => {
                 setActiveDate(date)
                 setManagerTab('today')
               }}
               onOpenAuth={() => setShowAuthModal(true)}
               onLogout={handleLogout}
+              onImportBackup={handleImportBackup}
               onNotify={notify}
             />
           )}
