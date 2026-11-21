@@ -23,7 +23,6 @@ import { useState } from 'react'
 
 interface LandingScreenProps {
   onStartApp: () => void
-  onOpenAdmin: () => void
   onOpenDriver: () => void
   onOpenAuth: () => void
 }
@@ -47,8 +46,8 @@ const FAQ_ITEMS = [
   },
 ]
 
-export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAuth }: LandingScreenProps) {
-  const [previewTab, setPreviewTab] = useState<'manager' | 'driver' | 'admin'>('manager')
+export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingScreenProps) {
+  const [previewTab, setPreviewTab] = useState<'manager' | 'driver'>('manager')
   const [openFaq, setOpenFaq] = useState<number | null>(0)
 
   return (
@@ -88,16 +87,8 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
           <div className="flex items-center gap-2.5">
             <button
               type="button"
-              onClick={onOpenAdmin}
-              className="hidden lg:inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-950 transition"
-            >
-              <ShieldCheck className="h-4 w-4 text-emerald-600" />
-              Super Admin
-            </button>
-            <button
-              type="button"
               onClick={onOpenAuth}
-              className="hidden sm:inline-flex items-center rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+              className="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
             >
               Connexion
             </button>
@@ -148,7 +139,7 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
               className="group flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl bg-slate-950 px-7 py-4 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-slate-950/20 hover:bg-emerald-600 transition active:scale-95"
             >
               <Store className="h-5 w-5 text-emerald-400 group-hover:text-white transition" />
-              <span>Lancer l'Espace Gérant</span>
+              <span>Espace Vendeur / Boutique</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </button>
             <button
@@ -157,15 +148,7 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
               className="flex w-full sm:w-auto items-center justify-center gap-2.5 rounded-2xl border border-slate-200 bg-white px-7 py-4 text-sm sm:text-base font-bold text-slate-800 shadow-sm hover:border-slate-300 hover:bg-slate-50 transition active:scale-95"
             >
               <Truck className="h-5 w-5 text-emerald-600" />
-              <span>Mode Livreur Terrain</span>
-            </button>
-            <button
-              type="button"
-              onClick={onOpenAdmin}
-              className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50/70 px-6 py-4 text-sm sm:text-base font-bold text-emerald-900 hover:bg-emerald-100/70 transition active:scale-95"
-            >
-              <ShieldCheck className="h-5 w-5 text-emerald-700" />
-              <span>Super Admin</span>
+              <span>Espace Livreur Terrain</span>
             </button>
           </div>
 
@@ -175,9 +158,8 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
             <div className="inline-flex rounded-2xl border border-slate-200/80 bg-white/90 p-1.5 shadow-sm backdrop-blur-md mb-5">
               {(
                 [
-                  { id: 'manager', label: 'Vue Gérant Desktop', icon: LayoutDashboard },
-                  { id: 'driver', label: 'Tournée Livreur', icon: Truck },
-                  { id: 'admin', label: 'Supervision Admin', icon: ShieldCheck },
+                  { id: 'manager', label: 'Compte Vendeur / Boutique', icon: LayoutDashboard },
+                  { id: 'driver', label: 'Compte Livreur', icon: Truck },
                 ] as const
               ).map(({ id, label, icon: Icon }) => (
                 <button
@@ -243,13 +225,6 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
                         </div>
                         <div className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-slate-400">
                           <BarChart3 className="h-4 w-4" /> Bilans & Gains
-                        </div>
-                        <div
-                          className={`flex items-center gap-2.5 rounded-xl px-3 py-2 ${
-                            previewTab === 'admin' ? 'bg-emerald-500/15 text-emerald-400' : 'text-slate-400'
-                          }`}
-                        >
-                          <ShieldCheck className="h-4 w-4" /> Super Admin
                         </div>
                       </div>
                     </div>
@@ -364,43 +339,6 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
                       </div>
                     )}
 
-                    {previewTab === 'admin' && (
-                      <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="text-[11px] font-bold uppercase text-purple-600">Supervision Réseau</p>
-                            <h3 className="font-black text-xl text-slate-950">12 Vendeurs & Dépôts Actifs</h3>
-                          </div>
-                          <span className="rounded-full bg-purple-100 px-3 py-1 text-xs font-bold text-purple-800">
-                            94% taux de clôture
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="rounded-2xl border border-slate-200 bg-white p-3.5">
-                            <p className="text-[10px] font-bold uppercase text-slate-400">CA Consolidé</p>
-                            <p className="mt-1 font-black text-lg text-slate-950">2 840 000 F</p>
-                          </div>
-                          <div className="rounded-2xl border border-slate-200 bg-white p-3.5">
-                            <p className="text-[10px] font-bold uppercase text-slate-400">Articles Vendus</p>
-                            <p className="mt-1 font-black text-lg text-emerald-600">28 450 pcs</p>
-                          </div>
-                          <div className="rounded-2xl border border-slate-200 bg-white p-3.5">
-                            <p className="text-[10px] font-bold uppercase text-slate-400">Actifs (7j)</p>
-                            <p className="mt-1 font-black text-lg text-purple-700">11 / 12</p>
-                          </div>
-                        </div>
-                        <div className="flex h-28 items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4">
-                          {[45, 62, 58, 78, 84, 72, 95].map((h, i) => (
-                            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full">
-                              <div
-                                className="w-full rounded-t-lg bg-gradient-to-t from-emerald-600 to-teal-400"
-                                style={{ height: `${h}%` }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>
@@ -676,10 +614,10 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
               </div>
               <button
                 type="button"
-                onClick={onOpenAdmin}
+                onClick={onOpenAuth}
                 className="mt-8 w-full rounded-2xl bg-slate-900 py-3.5 text-sm font-bold text-white hover:bg-slate-800 transition"
               >
-                Explorer le Super Admin
+                Nous contacter / Connexion
               </button>
             </div>
           </div>
@@ -742,15 +680,14 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-7 py-4 text-sm font-extrabold text-slate-950 hover:bg-emerald-400 transition"
               >
                 <Zap className="h-4 w-4" />
-                <span>Ouvrir l'application maintenant</span>
+                <span>Ouvrir mon Espace Vendeur</span>
               </button>
               <button
                 type="button"
-                onClick={onOpenAdmin}
+                onClick={onOpenAuth}
                 className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-7 py-4 text-sm font-bold text-white ring-1 ring-white/15 hover:bg-white/15 transition"
               >
-                <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                <span>Voir le Dashboard Super Admin</span>
+                <span>Se connecter à mon compte</span>
               </button>
             </div>
           </div>
@@ -775,13 +712,10 @@ export function LandingScreen({ onStartApp, onOpenAdmin, onOpenDriver, onOpenAut
           </div>
           <div className="flex flex-wrap gap-6 text-xs font-bold text-slate-600">
             <button type="button" onClick={onOpenDriver} className="hover:text-emerald-600 transition">
-              Mode Livreur
+              Espace Livreur
             </button>
             <button type="button" onClick={onStartApp} className="hover:text-emerald-600 transition">
-              Mode Gérant
-            </button>
-            <button type="button" onClick={onOpenAdmin} className="hover:text-emerald-600 transition">
-              Super Admin
+              Espace Vendeur
             </button>
             <button type="button" onClick={onOpenAuth} className="hover:text-emerald-600 transition">
               Connexion Cloud
