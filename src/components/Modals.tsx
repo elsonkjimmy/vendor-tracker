@@ -1,5 +1,6 @@
-import { AlertTriangle, CheckCircle2, Lock, Package, Plus, Trash2, X } from 'lucide-react'
+import { Lock, Package, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
+import { api } from '../lib/api'
 import { formatFCFA } from '../lib/format'
 import type { DeliveryItem, MarginType, Product, RebateType, VendorUser } from '../types'
 
@@ -314,14 +315,14 @@ interface ProductModalProps {
 
 export function ProductModal({ product, onSave, onDelete, onClose }: ProductModalProps) {
   const [name, setName] = useState(product?.name || '')
-  const [category, setCategory] = useState(product?.category || 'Boulangerie')
+  const [category] = useState(product?.category || 'Boulangerie')
   const [sellingPrice, setSellingPrice] = useState(String(product?.selling_price || ''))
   const [costPrice, setCostPrice] = useState(String(product?.cost_price || ''))
   const [supplier, setSupplier] = useState(product?.supplier_name || '')
   const [returnable, setReturnable] = useState(product?.returnable ?? true)
-  const [marginType, setMarginType] = useState<MarginType>(product?.margin_type || 'direct')
-  const [rebateType, setRebateType] = useState<RebateType>(product?.rebate_type || 'fixed')
-  const [rebateValue, setRebateValue] = useState(String(product?.rebate_value || ''))
+  const [marginType] = useState<MarginType>(product?.margin_type || 'direct')
+  const [rebateType] = useState<RebateType>(product?.rebate_type || 'fixed')
+  const [rebateValue] = useState(String(product?.rebate_value || ''))
   const [saving, setSaving] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
