@@ -2,7 +2,7 @@ import { Lock, Package, Trash2, X } from 'lucide-react'
 import { useState } from 'react'
 import { api } from '../lib/api'
 import { formatFCFA } from '../lib/format'
-import type { DeliveryItem, MarginType, Product, RebateType, VendorUser } from '../types'
+import type { AccountType, DeliveryItem, MarginType, Product, RebateType, VendorUser } from '../types'
 
 interface DeliveryModalProps {
   products: Product[]
@@ -315,7 +315,7 @@ interface ProductModalProps {
 
 export function ProductModal({ product, onSave, onDelete, onClose }: ProductModalProps) {
   const [name, setName] = useState(product?.name || '')
-  const [category] = useState(product?.category || 'Boulangerie')
+  const [category, setCategory] = useState(product?.category || 'Boulangerie')
   const [sellingPrice, setSellingPrice] = useState(String(product?.selling_price || ''))
   const [costPrice, setCostPrice] = useState(String(product?.cost_price || ''))
   const [supplier, setSupplier] = useState(product?.supplier_name || '')
@@ -409,6 +409,17 @@ export function ProductModal({ product, onSave, onDelete, onClose }: ProductModa
           </div>
 
           <div>
+            <label className="block text-xs font-bold text-zinc-600 mb-1">Catégorie</label>
+            <input
+              type="text"
+              placeholder="ex: Boulangerie, Viennoiserie, Pâtisserie..."
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
+            />
+          </div>
+
+          <div>
             <label className="block text-xs font-bold text-zinc-600 mb-1">Fournisseur</label>
             <input
               type="text"
@@ -476,6 +487,7 @@ interface AuthModalProps {
 
 export function AuthModal({ onSuccess, onClose }: AuthModalProps) {
   const [isRegister, setIsRegister] = useState(false)
+  const [accountType, setAccountType] = useState<AccountType>('vendor')
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -489,8 +501,8 @@ export function AuthModal({ onSuccess, onClose }: AuthModalProps) {
     setLoading(true)
     try {
       if (isRegister) {
-        const res = await api.register(name, phone, password, email || undefined)
-        onSuccess(res.token, res.user)
+        const res = await api.register(name, phone, password, email || undefined, accountType)
+        onSuccess(res.token, { ...res.user, account_type: res.user.account_type || accountType })
       } else {
         const res = await api.login(phone || email, password)
         onSuccess(res.token, res.user)
@@ -536,17 +548,42 @@ export function AuthModal({ onSuccess, onClose }: AuthModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-3">
           {isRegister && (
-            <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">Nom / Enseigne</label>
-              <input
-                type="text"
-                placeholder="ex: Jimmy Tournée 1"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
-                required
-              />
-            </div>
+            <>
+              <div>
+                <label className="block text-xs font-bold text-zinc-600 mb-1.5">Type de compte</label>
+                <div className="grid grid-cols-2 gap-2 rounded-2xl bg-zinc-100 p-1 text-xs font-bold">
+                  <button
+                    type="button"
+                    onClick={() => setAccountType('vendor')}
+                    className={`rounded-xl py-2 transition ${
+                      accountType === 'vendor' ? 'bg-slate-950 text-white shadow-xs' : 'text-zinc-600'
+                    }`}
+                  >
+                    Vendeur / Boutique
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountType('driver')}
+                    className={`rounded-xl py-2 transition ${
+                      accountType === 'driver' ? 'bg-slate-950 text-white shadow-xs' : 'text-zinc-600'
+                    }`}
+                  >
+                    Livreur Terrain
+                  </button>
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-zinc-600 mb-1">Nom / Enseigne</label>
+                <input
+                  type="text"
+                  placeholder="ex: Boutique Jimmy"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
+                  required
+                />
+              </div>
+            </>
           )}
 
           <div>
