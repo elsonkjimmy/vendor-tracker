@@ -1,4 +1,4 @@
-import type { AdminOverviewResponse, DailySheet, Product, VendorUser } from '../types'
+import type { AccountType, AdminOverviewResponse, DailySheet, Product, VendorUser } from '../types'
 
 export class ApiError extends Error {
   constructor(
@@ -36,8 +36,20 @@ async function request<T>(
 }
 
 export const api = {
-  async register(name: string, phone: string, password: string, email?: string): Promise<{ ok: boolean; token: string; user: VendorUser }> {
-    return request('POST', 'auth/register', null, { name, phone, password, email: email?.trim() || undefined })
+  async register(
+    name: string,
+    phone: string,
+    password: string,
+    email?: string,
+    accountType: AccountType = 'vendor'
+  ): Promise<{ ok: boolean; token: string; user: VendorUser }> {
+    return request('POST', 'auth/register', null, {
+      name,
+      phone,
+      password,
+      email: email?.trim() || undefined,
+      account_type: accountType,
+    })
   },
 
   async login(identifier: string, password: string): Promise<{ ok: boolean; token: string; user: VendorUser }> {

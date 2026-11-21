@@ -60,11 +60,14 @@ export interface ClientBoutique {
   created_at: string
 }
 
+export type AccountType = 'vendor' | 'driver'
+
 export interface VendorUser {
   id: string
   name: string
   phone: string
   email?: string
+  account_type?: AccountType
   is_admin: boolean
   created_at: string
 }
