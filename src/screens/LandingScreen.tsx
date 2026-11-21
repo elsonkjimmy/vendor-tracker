@@ -1,22 +1,15 @@
 import {
   ArrowRight,
-  BarChart3,
   CheckCircle2,
-  ChevronRight,
-  Database,
-  Flame,
   LayoutDashboard,
   Lock,
-  Package,
   Receipt,
+  RotateCcw,
   Share2,
   ShieldCheck,
-  Smartphone,
   Sparkles,
   Store,
   Truck,
-  Users,
-  Wallet,
   WifiOff,
 } from 'lucide-react'
 
