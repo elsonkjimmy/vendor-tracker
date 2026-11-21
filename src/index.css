@@ -2,18 +2,20 @@
 @import '@fontsource-variable/inter';
 
 @theme {
-  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --font-display: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --color-cream: #f6f3ee;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --color-cream: #f8fafc;
+  --color-obsidian: #0b1120;
 
-  --animate-toast-in: toast-in 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.15);
-  --animate-fade-up: fade-up 0.35s ease-out both;
-  --animate-sheet-in: sheet-in 0.3s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  --animate-toast-in: toast-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-sheet-in: sheet-in 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-float: float 6s ease-in-out infinite;
 
   @keyframes toast-in {
     from {
       opacity: 0;
-      transform: translateY(-20px) scale(0.96);
+      transform: translateY(-16px) scale(0.96);
     }
     to {
       opacity: 1;
@@ -23,7 +25,7 @@
   @keyframes fade-up {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(12px);
     }
     to {
       opacity: 1;
@@ -32,23 +34,67 @@
   }
   @keyframes sheet-in {
     from {
-      opacity: 1;
-      transform: translateY(100%);
+      opacity: 0;
+      transform: translateY(24px) scale(0.98);
     }
     to {
       opacity: 1;
       transform: none;
     }
   }
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
 }
 
 html {
+  scroll-behavior: smooth;
   -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background-color: var(--color-cream);
-  color: #18181b;
+  background-color: #f8fafc;
+  color: #0f172a;
   overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle architectural grid for SaaS hero & admin headers */
+.bg-grid-slate {
+  background-size: 32px 32px;
+  background-image: linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+}
+
+.bg-dot-slate {
+  background-size: 20px 20px;
+  background-image: radial-gradient(rgba(15, 23, 42, 0.1) 1px, transparent 1px);
+}
+
+.card-elevated {
+  background: #ffffff;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 8px 24px -12px rgba(15, 23, 42, 0.08);
+}
+
+/* Refined thin scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.45);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 116, 139, 0.65);
 }
