@@ -1,57 +1,56 @@
-import {
-  BarChart3,
-  CheckCircle2,
-  ChevronRight,
-  Download,
-  Edit2,
-  KeyRound,
-  Package,
-  PlusCircle,
-  RotateCcw,
-  Share2,
-  TrendingUp,
-  Wallet,
-} from 'lucide-react'
+import { Download, Package, PlusCircle, RotateCcw, Share2, TrendingUp, Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { GainHero } from '../components/GainHero'
-import { calculateDailySheetTotals } from '../lib/calc'
+import { HistoryCalendar } from '../components/HistoryCalendar'
+import { ProductsView } from '../components/ProductsView'
+import { SettingsView } from '../components/SettingsView'
+import { SummaryView } from '../components/SummaryView'
 import { exportDayTotalsCsv } from '../lib/exportCsv'
-import { formatDate, formatFCFA, formatNumber, formatShortDate } from '../lib/format'
+import { formatFCFA, formatNumber } from '../lib/format'
 import { generateReceiptCanvasBlob, generateWhatsAppMessage, openWhatsApp } from '../lib/share'
 import type { DailySheet, DayTotals, Product, VendorUser } from '../types'
 
 interface ManagerScreenProps {
   activeTab: string
+  activeDate: string
   totals: DayTotals
   allSheets: DailySheet[]
   products: Product[]
   user: VendorUser | null
+  syncing: boolean
+  onSyncNow: () => void
   onChangePin: (newPin: string) => Promise<void>
   onOpenNewDelivery: () => void
   onOpenClosing: () => void
   onOpenProductModal: (p?: Product) => void
+  onToggleProductActive: (p: Product) => Promise<void>
   onSelectDate: (date: string) => void
   onOpenAuth: () => void
   onLogout: () => void
+  onImportBackup: (data: { products?: Product[]; sheets?: DailySheet[] }) => Promise<void>
   onNotify: (tone: 'success' | 'error' | 'info', title: string, detail?: string) => void
 }
 
 export function ManagerScreen({
   activeTab,
+  activeDate,
   totals,
   allSheets,
   products,
   user,
+  syncing,
+  onSyncNow,
   onChangePin,
   onOpenNewDelivery,
   onOpenClosing,
   onOpenProductModal,
+  onToggleProductActive,
   onSelectDate,
   onOpenAuth,
   onLogout,
+  onImportBackup,
   onNotify,
 }: ManagerScreenProps) {
-  const [pinInput, setPinInput] = useState('')
   const [sharing, setSharing] = useState(false)
 
   const handleShareWhatsAppText = () => {
@@ -101,17 +100,15 @@ export function ManagerScreen({
           totals={totals}
           showNetProfit={true}
           bottomAction={
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleShareWhatsAppImage}
-                disabled={sharing}
-                className="flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-white/30 transition active:scale-95 disabled:opacity-50"
-              >
-                <Share2 className="h-3.5 w-3.5" />
-                <span>{sharing ? 'Export...' : 'Ticket WhatsApp'}</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={handleShareWhatsAppImage}
+              disabled={sharing}
+              className="flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-white/30 transition active:scale-95 disabled:opacity-50"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              <span>{sharing ? 'Export...' : 'Ticket WhatsApp'}</span>
+            </button>
           }
         />
 
@@ -151,7 +148,7 @@ export function ManagerScreen({
               <span className="text-xs font-semibold text-slate-400">/ {formatNumber(totals.total_delivered)}</span>
             </p>
             <p className="mt-0.5 text-[11px] font-medium text-slate-500">
-              {totals.closing_done ? 'Clôturé' : 'En cours de tournée'}
+              {totals.closing_done ? 'Clôturé' : 'En cours de journée'}
             </p>
           </div>
 
@@ -167,12 +164,12 @@ export function ManagerScreen({
           </div>
         </div>
 
-        {/* Quick Manager Actions */}
+        {/* Quick Actions */}
         <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={onOpenNewDelivery}
-            className="flex-1 min-w-[160px] flex items-center justify-center gap-2 rounded-2xl bg-slate-950 py-3.5 px-5 font-bold text-xs sm:text-sm text-white shadow-md hover:bg-emerald-600 transition active:scale-95"
+            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 rounded-2xl bg-slate-950 py-3.5 px-5 font-bold text-xs sm:text-sm text-white shadow-md hover:bg-emerald-600 transition active:scale-95"
           >
             <PlusCircle className="h-4 w-4 text-emerald-400" />
             <span>Ajouter Réception</span>
@@ -180,7 +177,7 @@ export function ManagerScreen({
           <button
             type="button"
             onClick={onOpenClosing}
-            className="flex-1 min-w-[160px] flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 px-5 font-bold text-xs sm:text-sm text-slate-900 shadow-xs hover:bg-slate-50 transition active:scale-95"
+            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 px-5 font-bold text-xs sm:text-sm text-slate-900 shadow-xs hover:bg-slate-50 transition active:scale-95"
           >
             <RotateCcw className="h-4 w-4 text-amber-600" />
             <span>Clôturer & Invendus</span>
@@ -259,275 +256,55 @@ export function ManagerScreen({
     )
   }
 
-  // --- TAB: HISTORY (Historique) ---
+  // --- TAB: HISTORY (Calendrier + Vue détaillée) ---
   if (activeTab === 'history') {
     return (
-      <div className="space-y-5 animate-fade-up">
-        <div className="card-elevated rounded-3xl p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="font-black text-xl text-slate-950">Historique des Journées</h2>
-              <p className="text-xs text-slate-500">Cliquez sur une journée pour consulter ou modifier son bilan</p>
-            </div>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
-              {allSheets.length} jour(s)
-            </span>
-          </div>
-
-          <div className="space-y-2.5">
-            {allSheets.length === 0 ? (
-              <p className="py-10 text-center text-xs text-slate-400">Aucune journée enregistrée pour l'instant.</p>
-            ) : (
-              allSheets.map((s) => {
-                const t = calculateDailySheetTotals(s, products)
-                return (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => onSelectDate(s.date)}
-                    className="flex w-full items-center justify-between rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 hover:bg-white hover:shadow-xs transition text-left"
-                  >
-                    <div>
-                      <p className="font-extrabold text-sm text-slate-950">{formatDate(s.date)}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {s.deliveries.length} réception(s) • {t.total_sold} vendus • {t.total_unsold} invendus
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="font-black text-sm text-slate-950 tabular-nums">
-                          {formatFCFA(t.total_employee_revenue)}
-                        </p>
-                        <span
-                          className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                            s.closing_done ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
-                          }`}
-                        >
-                          {s.closing_done ? 'Clôturé' : 'En cours'}
-                        </span>
-                      </div>
-                      <ChevronRight className="h-5 w-5 text-slate-400" />
-                    </div>
-                  </button>
-                )
-              })
-            )}
-          </div>
-        </div>
-      </div>
+      <HistoryCalendar
+        allSheets={allSheets}
+        products={products}
+        selectedDate={activeDate}
+        onOpenDate={onSelectDate}
+      />
     )
   }
 
-  // --- TAB: SUMMARY (Bilan & Gains) ---
+  // --- TAB: SUMMARY (Bilan Jour / Semaine / Mois) ---
   if (activeTab === 'summary') {
-    const computedSheets = allSheets
-      .filter((s) => s.closing_done)
-      .map((s) => calculateDailySheetTotals(s, products))
-      .sort((a, b) => a.date.localeCompare(b.date))
-
-    const totalRevenues = computedSheets.reduce((sum, s) => sum + s.total_employee_revenue, 0)
-    const totalProfit = computedSheets.reduce((sum, s) => sum + s.total_net_profit, 0)
-    const totalSold = computedSheets.reduce((sum, s) => sum + s.total_sold, 0)
-    const avgRevenue = computedSheets.length > 0 ? Math.round(totalRevenues / computedSheets.length) : 0
-    const maxRev = Math.max(...computedSheets.map((s) => s.total_employee_revenue), 1)
-
     return (
-      <div className="space-y-6 animate-fade-up">
-        <div className="rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 sm:p-8 text-white shadow-xl">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold uppercase tracking-widest text-emerald-400">
-              Bilan Consolidé
-            </span>
-            <CheckCircle2 className="h-5 w-5 text-emerald-400" />
-          </div>
-          <p className="mt-2 font-black text-3xl sm:text-4xl tabular-nums">{formatFCFA(totalRevenues)}</p>
-          <p className="text-xs text-slate-300 mt-1">Total des recettes encaissées sur {computedSheets.length} jour(s) clôturé(s)</p>
-
-          <div className="mt-6 grid grid-cols-3 gap-3 border-t border-white/10 pt-5 text-xs">
-            <div>
-              <p className="text-slate-400">Bénéfice Net Cumulé</p>
-              <p className="mt-0.5 font-black text-base text-emerald-400 tabular-nums">+{formatFCFA(totalProfit)}</p>
-            </div>
-            <div>
-              <p className="text-slate-400">Moyenne / Jour</p>
-              <p className="mt-0.5 font-black text-base text-white tabular-nums">{formatFCFA(avgRevenue)}</p>
-            </div>
-            <div>
-              <p className="text-slate-400">Articles Vendus</p>
-              <p className="mt-0.5 font-black text-base text-white tabular-nums">{formatNumber(totalSold)} pcs</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Visual Bar Chart of Closed Days */}
-        <div className="card-elevated rounded-3xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-bold text-base text-slate-950">Évolution des Recettes par Journée</h3>
-              <p className="text-xs text-slate-500">Comparaison visuelle de vos journées clôturées</p>
-            </div>
-            <BarChart3 className="h-5 w-5 text-slate-400" />
-          </div>
-
-          {computedSheets.length === 0 ? (
-            <p className="py-10 text-center text-xs text-slate-400">
-              Clôturez au moins une journée pour voir apparaître le graphique des recettes.
-            </p>
-          ) : (
-            <div className="flex h-48 items-end gap-3 pt-4 border-b border-slate-100 pb-2">
-              {computedSheets.slice(-10).map((s) => {
-                const h = Math.max(10, Math.round((s.total_employee_revenue / maxRev) * 100))
-                return (
-                  <div key={s.date} className="group relative flex flex-1 flex-col items-center justify-end h-full">
-                    <div className="pointer-events-none absolute -top-11 hidden rounded-xl bg-slate-950 px-2.5 py-1.5 text-center text-[10px] font-bold text-white shadow-lg group-hover:block whitespace-nowrap z-10">
-                      <div>{formatFCFA(s.total_employee_revenue)}</div>
-                      <div className="text-emerald-400">+{formatFCFA(s.total_net_profit)}</div>
-                    </div>
-                    <div
-                      className="w-full max-w-[44px] rounded-t-xl bg-gradient-to-t from-emerald-600 to-teal-400 transition-all group-hover:from-emerald-500"
-                      style={{ height: `${h}%` }}
-                    />
-                    <span className="mt-2 text-[10px] font-bold text-slate-400">{formatShortDate(s.date)}</span>
-                  </div>
-                )
-              })}
-            </div>
-          )}
-        </div>
-      </div>
+      <SummaryView
+        allSheets={allSheets}
+        products={products}
+        activeDate={activeDate}
+        businessName={user?.name || 'Ma Boutique'}
+      />
     )
   }
 
-  // --- TAB: PRODUCTS (Catalogue Produits) ---
+  // --- TAB: PRODUCTS (Catalogue + Recherche + Filtres) ---
   if (activeTab === 'products') {
     return (
-      <div className="space-y-5 animate-fade-up">
-        <div className="card-elevated rounded-3xl p-5 sm:p-6 space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h2 className="font-black text-xl text-slate-950">Catalogue des Produits</h2>
-              <p className="text-xs text-slate-500">Configurez les prix de vente, coûts d'achat et fournisseurs</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => onOpenProductModal()}
-              className="flex items-center gap-1.5 rounded-2xl bg-slate-950 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-emerald-600 transition"
-            >
-              <PlusCircle className="h-4 w-4 text-emerald-400" />
-              <span>Nouveau Produit</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {products.map((p) => (
-              <div
-                key={p.id}
-                onClick={() => onOpenProductModal(p)}
-                className="group flex items-center justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-4 hover:bg-white hover:border-emerald-500/40 hover:shadow-xs transition cursor-pointer"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <p className="font-extrabold text-sm text-slate-950 group-hover:text-emerald-800">{p.name}</p>
-                    {p.returnable && (
-                      <span className="rounded-md bg-emerald-100/80 px-1.5 py-0.5 text-[9px] font-bold text-emerald-800">
-                        Repris
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Achat : <span className="font-semibold">{formatFCFA(p.cost_price)}</span> • Vente :{' '}
-                    <span className="font-bold text-slate-900">{formatFCFA(p.selling_price)}</span>
-                  </p>
-                  <span className="mt-1 inline-block text-[10px] font-bold text-emerald-700">
-                    Marge unitaire : +{formatFCFA(p.selling_price - p.cost_price)}/u
-                  </span>
-                </div>
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-slate-400 group-hover:text-emerald-700 ring-1 ring-slate-200/70">
-                  <Edit2 className="h-4 w-4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <ProductsView
+        products={products}
+        onOpenProductModal={onOpenProductModal}
+        onToggleActive={onToggleProductActive}
+      />
     )
   }
 
-  // --- TAB: SETTINGS (Paramètres) ---
+  // --- TAB: SETTINGS (Profil & Réglages complets) ---
   return (
-    <div className="card-elevated rounded-3xl p-6 space-y-6 animate-fade-up">
-      <div>
-        <h2 className="font-black text-xl text-slate-950">Paramètres Gérant</h2>
-        <p className="text-xs text-slate-500">Code PIN de sécurité et synchronisation Cloud Cloudflare</p>
-      </div>
-
-      {/* Change PIN section */}
-      <div className="rounded-2xl border border-slate-200/80 bg-slate-50 p-5 space-y-3">
-        <div className="flex items-center gap-2 text-slate-900 font-bold text-sm">
-          <KeyRound className="h-4 w-4 text-emerald-600" />
-          <span>Code PIN de l'Espace Gérant</span>
-        </div>
-        <p className="text-xs text-slate-500">
-          Code actuel à 4 chiffres (par défaut : <b>0000</b>). Modifiez-le pour protéger vos marges et prix d'achat.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <input
-            type="password"
-            maxLength={4}
-            placeholder="Nouveau PIN (4 chiffres)"
-            value={pinInput}
-            onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-            className="w-52 rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm font-bold tracking-widest text-slate-900 focus:border-emerald-600 focus:outline-hidden"
-          />
-          <button
-            type="button"
-            onClick={async () => {
-              if (pinInput.length === 4) {
-                await onChangePin(pinInput)
-                setPinInput('')
-                onNotify('success', 'Code PIN mis à jour', 'Votre nouveau code PIN à 4 chiffres est actif.')
-              } else {
-                onNotify('error', 'Code PIN invalide', 'Le code PIN doit comporter exactement 4 chiffres.')
-              }
-            }}
-            className="rounded-xl bg-slate-950 px-5 py-2.5 text-xs font-bold text-white hover:bg-emerald-600 transition"
-          >
-            Enregistrer
-          </button>
-        </div>
-      </div>
-
-      {/* Cloud Account Section */}
-      <div className="rounded-2xl border border-slate-200/80 bg-slate-50 p-5 space-y-3">
-        <p className="font-bold text-sm text-slate-900">Compte & Synchronisation Cloudflare D1</p>
-        {user ? (
-          <div className="space-y-3">
-            <p className="text-xs text-slate-600">
-              Connecté en tant que : <b>{user.name}</b> ({user.phone})
-            </p>
-            <button
-              type="button"
-              onClick={onLogout}
-              className="rounded-xl border border-red-200 bg-white px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition"
-            >
-              Se Déconnecter
-            </button>
-          </div>
-        ) : (
-          <div>
-            <p className="text-xs text-slate-500 mb-3">
-              Sauvegardez vos bilans dans le cloud et synchronisez vos données entre ordinateur et téléphone.
-            </p>
-            <button
-              type="button"
-              onClick={onOpenAuth}
-              className="rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition"
-            >
-              Se Connecter / Créer un Compte
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
+    <SettingsView
+      accountRole="vendor"
+      user={user}
+      products={products}
+      allSheets={allSheets}
+      syncing={syncing}
+      onSyncNow={onSyncNow}
+      onChangePin={onChangePin}
+      onOpenAuth={onOpenAuth}
+      onLogout={onLogout}
+      onImportBackup={onImportBackup}
+      onNotify={onNotify}
+    />
   )
 }
