@@ -587,10 +587,12 @@ export function AuthModal({ onSuccess, onClose }: AuthModalProps) {
           )}
 
           <div>
-            <label className="block text-xs font-bold text-zinc-600 mb-1">Numéro de Téléphone</label>
+            <label className="block text-xs font-bold text-zinc-600 mb-1">
+              {isRegister ? 'Numéro de Téléphone' : 'Téléphone ou Email'}
+            </label>
             <input
-              type="tel"
-              placeholder="621614204"
+              type={isRegister ? 'tel' : 'text'}
+              placeholder={isRegister ? '621614204' : '621614204 ou email@gmail.com'}
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
