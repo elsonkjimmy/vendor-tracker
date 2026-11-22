@@ -14,6 +14,7 @@ import {
   Wallet,
 } from 'lucide-react'
 import type { VendorUser } from '../types'
+import { BrandLogo } from './BrandLogo'
 
 export type AppMode = 'driver' | 'manager' | 'admin' | 'landing'
 export type DriverTab = 'tour' | 'stock' | 'wallet' | 'clients' | 'settings'
@@ -70,13 +71,7 @@ export function Sidebar({
             className="flex items-center gap-3 text-left transition hover:opacity-90"
             title="Retour à l'accueil"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20">
-              {isDriverAccount ? (
-                <Truck className="h-5 w-5 stroke-[2.4]" />
-              ) : (
-                <Store className="h-5 w-5 stroke-[2.4]" />
-              )}
-            </div>
+            <BrandLogo size="md" />
             <div>
               <span className="block font-black text-base tracking-tight text-white leading-none">
                 Vendor<span className="text-emerald-400">Tracker</span>

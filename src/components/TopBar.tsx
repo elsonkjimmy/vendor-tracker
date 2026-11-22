@@ -1,6 +1,7 @@
-import { Calendar, ChevronLeft, ChevronRight, Cloud, CloudOff, RefreshCw, ShieldCheck, Store, Truck } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight, Cloud, CloudOff, RefreshCw, ShieldCheck } from 'lucide-react'
 import { formatShortDate, shiftIsoDate } from '../lib/format'
 import type { VendorUser } from '../types'
+import { BrandLogo } from './BrandLogo'
 import type { AppMode } from './Navigation'
 
 interface TopBarProps {
@@ -47,10 +48,10 @@ export function TopBar({
           <button
             type="button"
             onClick={() => onSwitchMode('landing')}
-            className="lg:hidden flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-950 text-emerald-400 shadow-xs"
+            className="lg:hidden shrink-0 transition active:scale-95"
             title="Accueil"
           >
-            {mode === 'driver' ? <Truck className="h-4 w-4" /> : <Store className="h-4 w-4" />}
+            <BrandLogo size="sm" className="h-9 w-9 rounded-xl" />
           </button>
           <div className="min-w-0 flex-1">
             <h1

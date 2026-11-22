@@ -20,6 +20,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { useState } from 'react'
+import { BrandLogo } from '../components/BrandLogo'
 
 interface LandingScreenProps {
   onStartApp: () => void
@@ -56,9 +57,7 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-950 text-emerald-400 shadow-sm ring-1 ring-slate-900/10">
-              <Truck className="h-5 w-5 stroke-[2.2]" />
-            </div>
+            <BrandLogo size="md" />
             <div>
               <span className="block font-black text-lg tracking-tight text-slate-950 leading-none">
                 Vendor<span className="text-emerald-600">Tracker</span>
@@ -203,9 +202,7 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
                   <div className="hidden lg:flex lg:col-span-3 flex-col justify-between bg-[#0b1120] p-4 text-slate-300">
                     <div className="space-y-4">
                       <div className="flex items-center gap-2.5 px-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500 text-slate-950">
-                          <Truck className="h-4 w-4" />
-                        </div>
+                        <BrandLogo size="sm" />
                         <span className="font-black text-sm text-white">VendorTracker</span>
                       </div>
                       <div className="space-y-1 text-xs font-semibold">
@@ -699,9 +696,7 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
         <div className="mx-auto max-w-6xl flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
           <div>
             <div className="flex items-center gap-2.5">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-950 text-emerald-400">
-                <Truck className="h-4 w-4" />
-              </div>
+              <BrandLogo size="sm" />
               <span className="font-black text-base text-slate-950">
                 Vendor<span className="text-emerald-600">Tracker</span>
               </span>
