@@ -46,14 +46,16 @@ export default function App() {
 
   // Load initial local data
   const loadData = useCallback(async () => {
-    await db.initDefaultDataIfEmpty()
-    const [p, c, s, pin, storedToken, storedUser] = await Promise.all([
+    const storedUser = await db.getAuthUser()
+    if (!storedUser) {
+      await db.initDefaultDataIfEmpty()
+    }
+    const [p, c, s, pin, storedToken] = await Promise.all([
       db.getProducts(),
       db.getClients(),
       db.getSheets(),
       db.getMeta<string>('manager_pin'),
       db.getMeta<string>('auth_token'),
-      db.getAuthUser(),
     ])
 
     setProducts(p)
@@ -310,9 +312,12 @@ export default function App() {
   }
 
   const handleAuthSuccess = async (newToken: string, newUser: VendorUser) => {
+    await db.clearAccountData()
     await db.setAuthSession(newToken, newUser)
     setToken(newToken)
     setUser(newUser)
+    setProducts([])
+    setAllSheets([])
     notify('success', `Bienvenue, ${newUser.name}`, 'Votre session Cloud est active.')
     if (newUser.is_admin) {
       setMode('admin')
@@ -327,8 +332,11 @@ export default function App() {
 
   const handleLogout = async () => {
     await db.setAuthSession(null, null)
+    await db.clearAccountData()
     setToken(null)
     setUser(null)
+    setProducts([])
+    setAllSheets([])
     if (mode === 'admin') setMode('landing')
     notify('info', 'Déconnecté', 'Vous avez été déconnecté de votre compte.')
   }
