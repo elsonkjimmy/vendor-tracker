@@ -320,18 +320,34 @@ export function ProductModal({ product, onSave, onDelete, onClose }: ProductModa
   const [costPrice, setCostPrice] = useState(String(product?.cost_price || ''))
   const [supplier, setSupplier] = useState(product?.supplier_name || '')
   const [returnable, setReturnable] = useState(product?.returnable ?? true)
-  const [marginType] = useState<MarginType>(product?.margin_type || 'direct')
-  const [rebateType] = useState<RebateType>(product?.rebate_type || 'fixed')
-  const [rebateValue] = useState(String(product?.rebate_value || ''))
+  const [marginType, setMarginType] = useState<MarginType>(product?.margin_type || 'direct')
+  const [rebateType, setRebateType] = useState<RebateType>(product?.rebate_type || 'fixed')
+  const [rebateValue, setRebateValue] = useState(String(product?.rebate_value || ''))
   const [saving, setSaving] = useState(false)
+
+  const spNum = parseFloat(sellingPrice) || 0
+  const cpNum = parseFloat(costPrice) || 0
+  const rbNum = parseFloat(rebateValue) || 0
+  const estimatedUnitGain =
+    marginType === 'direct'
+      ? Math.max(0, spNum - cpNum)
+      : rebateType === 'percent'
+        ? Math.round(spNum * (rbNum / 100))
+        : rbNum
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!name.trim()) return alert('Nom du produit requis')
     const sp = parseFloat(sellingPrice)
-    const cp = parseFloat(costPrice)
     if (isNaN(sp) || sp < 0) return alert('Prix de vente invalide')
-    if (isNaN(cp) || cp < 0) return alert("Prix d'achat invalide")
+
+    let cp = parseFloat(costPrice)
+    if (marginType === 'rebate') {
+      if (isNaN(cp) || cp < 0) cp = sp
+      if (isNaN(rbNum) || rbNum < 0) return alert('Valeur de ristourne invalide')
+    } else if (isNaN(cp) || cp < 0) {
+      return alert("Prix d'achat invalide")
+    }
 
     setSaving(true)
     try {
@@ -344,7 +360,7 @@ export function ProductModal({ product, onSave, onDelete, onClose }: ProductModa
         returnable,
         margin_type: marginType,
         rebate_type: marginType === 'rebate' ? rebateType : undefined,
-        rebate_value: marginType === 'rebate' ? parseFloat(rebateValue) || 0 : undefined,
+        rebate_value: marginType === 'rebate' ? rbNum : undefined,
       })
       onClose()
     } catch {
@@ -383,29 +399,117 @@ export function ProductModal({ product, onSave, onDelete, onClose }: ProductModa
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">Prix de Vente (F)</label>
-              <input
-                type="number"
-                placeholder="100"
-                value={sellingPrice}
-                onChange={(e) => setSellingPrice(e.target.value)}
-                className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
-                required
-              />
+          {/* Mode de gain : Achat-Revente vs Ristourne */}
+          <div>
+            <label className="block text-xs font-bold text-zinc-600 mb-1.5">Mode de rémunération</label>
+            <div className="grid grid-cols-2 gap-1.5 rounded-2xl bg-zinc-100 p-1 text-xs font-bold">
+              <button
+                type="button"
+                onClick={() => setMarginType('direct')}
+                className={`rounded-xl py-2.5 px-2 transition ${
+                  marginType === 'direct' ? 'bg-slate-950 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+              >
+                Achat / Revente
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMarginType('rebate')
+                  if (!costPrice && sellingPrice) setCostPrice(sellingPrice)
+                }}
+                className={`rounded-xl py-2.5 px-2 transition ${
+                  marginType === 'rebate' ? 'bg-purple-700 text-white shadow-xs' : 'text-zinc-600 hover:text-zinc-900'
+                }`}
+              >
+                Avec Ristourne
+              </button>
             </div>
-            <div>
-              <label className="block text-xs font-bold text-zinc-600 mb-1">Prix Achat / Revient (F)</label>
-              <input
-                type="number"
-                placeholder="85"
-                value={costPrice}
-                onChange={(e) => setCostPrice(e.target.value)}
-                className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
-                required
-              />
+            <p className="mt-1.5 text-[11px] text-zinc-500">
+              {marginType === 'direct'
+                ? 'Mode achat-revente (Bayam Sellam) : votre gain = Prix vente − Prix achat.'
+                : 'Prix fournisseur imposé : vous êtes payé à la ristourne sur chaque vente.'}
+            </p>
+          </div>
+
+          {marginType === 'direct' ? (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-bold text-zinc-600 mb-1">Prix Achat / Revient (F)</label>
+                <input
+                  type="number"
+                  placeholder="85"
+                  value={costPrice}
+                  onChange={(e) => setCostPrice(e.target.value)}
+                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-zinc-600 mb-1">Prix de Vente (F)</label>
+                <input
+                  type="number"
+                  placeholder="100"
+                  value={sellingPrice}
+                  onChange={(e) => setSellingPrice(e.target.value)}
+                  className="w-full rounded-2xl border border-zinc-200 bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
+                  required
+                />
+              </div>
             </div>
+          ) : (
+            <div className="space-y-3 rounded-2xl border border-purple-200/80 bg-purple-50/50 p-3.5">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-zinc-600 mb-1">Prix de Vente (F)</label>
+                  <input
+                    type="number"
+                    placeholder="100"
+                    value={sellingPrice}
+                    onChange={(e) => {
+                      setSellingPrice(e.target.value)
+                      setCostPrice(e.target.value)
+                    }}
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm font-semibold text-zinc-900 focus:border-purple-600 focus:outline-hidden"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-zinc-600 mb-1">Type de ristourne</label>
+                  <select
+                    value={rebateType}
+                    onChange={(e) => setRebateType(e.target.value as RebateType)}
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm font-semibold text-zinc-900 focus:border-purple-600 focus:outline-hidden"
+                  >
+                    <option value="fixed">Fixe (F / unité)</option>
+                    <option value="percent">Pourcentage (%)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-zinc-600 mb-1">
+                  {rebateType === 'percent' ? 'Taux de ristourne (%)' : 'Ristourne par unité (FCFA)'}
+                </label>
+                <input
+                  type="number"
+                  placeholder={rebateType === 'percent' ? '10' : '15'}
+                  value={rebateValue}
+                  onChange={(e) => setRebateValue(e.target.value)}
+                  className="w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2 text-sm font-semibold text-zinc-900 focus:border-purple-600 focus:outline-hidden"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Live Gain Preview */}
+          <div className="flex items-center justify-between rounded-2xl bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-900">
+            <span>Gain estimé par unité vendue :</span>
+            <span className="text-sm font-black text-emerald-700">
+              +{formatFCFA(estimatedUnitGain)}
+              {marginType === 'rebate' && rebateType === 'percent' && rbNum > 0 ? ` (${rbNum}%)` : ''}
+            </span>
           </div>
 
           <div>
