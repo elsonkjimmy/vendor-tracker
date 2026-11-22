@@ -64,6 +64,10 @@ export const api = {
     return request('GET', 'admin/overview', token)
   },
 
+  async adminResetPassword(token: string, userId: string, newPassword: string): Promise<{ ok: boolean }> {
+    return request('POST', 'admin/reset-password', token, { user_id: userId, new_password: newPassword })
+  },
+
   async sync(
     token: string,
     since: number,
