@@ -349,9 +349,9 @@ export function HistoryCalendar({ allSheets, products, selectedDate, onOpenDate 
 
       {/* Month Chronological List */}
       <div className="card-elevated rounded-3xl p-5 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h3 className="font-black text-base text-slate-950 capitalize">Toutes les journées — {monthLabel}</h3>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
             {monthEntries.length} entrée(s)
           </span>
         </div>
