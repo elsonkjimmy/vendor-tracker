@@ -42,3 +42,8 @@ npm run build
 # Déployer sur Cloudflare Workers
 npm run deploy
 ```
+
+## 🔄 Déploiement Automatique (Workers Builds)
+
+Chaque `git push` sur la branche `master` déclenche automatiquement un build (`npm run build`) et un déploiement (`npx wrangler deploy`) sur Cloudflare Workers vers `https://vendor-tracker.elsonkjimmy.workers.dev/`.
+
