@@ -210,7 +210,7 @@ function parseSyncRequest(raw: unknown): SyncRequest | null {
 }
 
 const ADMIN_EMAILS = new Set(['elsonkjimmy@gmail.com'])
-const ADMIN_PHONES = new Set(['621614204', '677036805'])
+const ADMIN_PHONES = new Set(['621614204'])
 
 function isSuperAdmin(email?: string | null, phone?: string | null): boolean {
   if (email && ADMIN_EMAILS.has(email.trim().toLowerCase())) return true
