@@ -69,7 +69,7 @@ export function SettingsView({
     a.download = `vendortracker-backup-${new Date().toISOString().slice(0, 10)}.json`
     a.click()
     URL.revokeObjectURL(url)
-    onNotify('success', 'Sauvegarde exportée', 'Votre fichier de sauvegarde JSON a été téléchargé.')
+    onNotify('success', 'Sauvegarde JSON exportée', 'Votre fichier de sauvegarde a été téléchargé.')
   }
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,17 +91,18 @@ export function SettingsView({
     <div className="space-y-6 animate-fade-up">
       {/* Header */}
       <div>
-        <h2 className="font-black text-2xl tracking-tight text-slate-950">Profil & Réglages</h2>
+        <h2 className="font-black text-2xl tracking-tight text-slate-950">Mon Profil & Réglages</h2>
         <p className="text-xs font-medium text-slate-500">
-          Informations de votre compte, statistiques locales, sauvegarde et sécurité
+          Identité du compte, synchronisation Cloud Cloudflare et sécurité
         </p>
       </div>
 
-      {/* Rich Profile Identity Card */}
-      <div className="rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 text-white shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Profile Identity Banner */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 sm:p-7 text-white shadow-xl">
+        <div className="pointer-events-none absolute -top-12 -right-12 h-44 w-44 rounded-full bg-emerald-500/20 blur-2xl" />
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-500/20 text-emerald-400 font-black text-xl ring-1 ring-emerald-400/30">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-emerald-500 text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/20">
               {(user?.name || (isDriver ? 'LV' : 'VD')).slice(0, 2).toUpperCase()}
             </div>
             <div>
@@ -120,10 +121,11 @@ export function SettingsView({
                   </span>
                 )}
               </div>
-              <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-300">
+
+              <div className="mt-2.5 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-xs text-slate-300">
                 <span className="inline-flex items-center gap-1.5">
                   <Phone className="h-3.5 w-3.5 text-emerald-400" />
-                  {user?.phone || 'Aucun numéro lié'}
+                  {user?.phone || 'Non connecté'}
                 </span>
                 {user?.email && (
                   <span className="inline-flex items-center gap-1.5">
@@ -132,9 +134,7 @@ export function SettingsView({
                   </span>
                 )}
                 {user?.created_at && (
-                  <span className="text-slate-400">
-                    Inscrit le {formatDate(user.created_at.slice(0, 10))}
-                  </span>
+                  <span className="text-slate-400">Membre depuis le {formatDate(user.created_at.slice(0, 10))}</span>
                 )}
               </div>
             </div>
@@ -144,7 +144,7 @@ export function SettingsView({
             <button
               type="button"
               onClick={onLogout}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-2.5 text-xs font-bold text-rose-300 ring-1 ring-white/15 hover:bg-rose-500/20 transition"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-white/10 px-4 py-2.5 text-xs font-bold text-rose-300 ring-1 ring-white/15 hover:bg-rose-500/20 transition"
             >
               <LogOut className="h-4 w-4" />
               <span>Déconnexion</span>
@@ -153,64 +153,64 @@ export function SettingsView({
             <button
               type="button"
               onClick={onOpenAuth}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition"
+              className="inline-flex shrink-0 items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition"
             >
               <LogIn className="h-4 w-4" />
-              <span>Se connecter / Créer un compte</span>
+              <span>Se connecter / S'inscrire</span>
             </button>
           )}
         </div>
       </div>
 
-      {/* Account Stats Grid */}
+      {/* Account Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
         <div className="card-elevated rounded-2xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold uppercase text-slate-400">Produits</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Produits</span>
             <Package className="h-4 w-4 text-emerald-600" />
           </div>
-          <p className="mt-1 font-black text-2xl text-slate-950 tabular-nums">{products.length}</p>
+          <p className="mt-1.5 font-black text-2xl text-slate-950 tabular-nums">{products.length}</p>
           <p className="text-[11px] text-slate-500">Au catalogue</p>
         </div>
 
         <div className="card-elevated rounded-2xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold uppercase text-slate-400">Journées</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Journées</span>
             <CalendarCheck className="h-4 w-4 text-sky-600" />
           </div>
-          <p className="mt-1 font-black text-2xl text-slate-950 tabular-nums">{allSheets.length}</p>
-          <p className="text-[11px] text-emerald-600">{closedCount} clôturée(s)</p>
+          <p className="mt-1.5 font-black text-2xl text-slate-950 tabular-nums">{allSheets.length}</p>
+          <p className="text-[11px] font-semibold text-emerald-600">{closedCount} clôturée(s)</p>
         </div>
 
         <div className="card-elevated rounded-2xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold uppercase text-slate-400">Stockage Local</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Hors-ligne</span>
             <HardDrive className="h-4 w-4 text-slate-500" />
           </div>
-          <p className="mt-1 font-black text-lg text-slate-950 flex items-center gap-1.5">
-            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Actif
+          <p className="mt-1.5 font-black text-lg text-slate-950 flex items-center gap-1.5">
+            <CheckCircle2 className="h-4 w-4 text-emerald-600" /> IndexedDB
           </p>
-          <p className="text-[11px] text-slate-500">IndexedDB hors-ligne</p>
+          <p className="text-[11px] text-slate-500">Stockage local actif</p>
         </div>
 
         <div className="card-elevated rounded-2xl p-4">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-extrabold uppercase text-slate-400">Cloud D1</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Cloud D1</span>
             {user ? <Cloud className="h-4 w-4 text-emerald-600" /> : <CloudOff className="h-4 w-4 text-slate-400" />}
           </div>
-          <p className="mt-1 font-black text-lg text-slate-950">{user ? 'Connecté' : 'Local'}</p>
+          <p className="mt-1.5 font-black text-lg text-slate-950">{user ? 'Connecté' : 'Local'}</p>
           <p className="text-[11px] text-slate-500">{user ? 'Cloudflare Workers' : 'Non synchronisé'}</p>
         </div>
       </div>
 
-      {/* Two-Column Settings Cards */}
+      {/* Two-Column Action Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Cloud Sync & Local Backup */}
+        {/* Cloud Sync & JSON Backup */}
         <div className="card-elevated rounded-3xl p-6 space-y-4">
           <div>
             <h3 className="font-black text-base text-slate-950">Synchronisation & Sauvegarde</h3>
             <p className="text-xs text-slate-500">
-              Sauvegardez vos données sur Cloudflare D1 ou exportez un fichier JSON local.
+              Synchronisez avec Cloudflare D1 ou créez une copie de secours JSON sur votre appareil.
             </p>
           </div>
 
@@ -218,26 +218,26 @@ export function SettingsView({
             type="button"
             onClick={user ? onSyncNow : onOpenAuth}
             disabled={syncing}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 py-3 text-xs font-extrabold text-white hover:bg-emerald-600 transition disabled:opacity-50"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-slate-950 py-3.5 text-xs font-extrabold text-white hover:bg-emerald-600 transition disabled:opacity-50"
           >
             <RefreshCw className={`h-4 w-4 ${syncing ? 'animate-spin' : ''}`} />
             <span>
               {syncing
                 ? 'Synchronisation en cours...'
                 : user
-                  ? 'Synchroniser avec Cloudflare D1'
+                  ? 'Synchroniser maintenant'
                   : 'Connecter mon compte Cloud'}
             </span>
           </button>
 
-          <div className="grid grid-cols-2 gap-3 pt-1">
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={handleExportJson}
               className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 py-3 text-xs font-bold text-slate-800 hover:bg-white transition"
             >
               <Download className="h-4 w-4 text-emerald-600" />
-              <span>Exporter JSON</span>
+              <span>Sauvegarde JSON</span>
             </button>
             <button
               type="button"
@@ -245,7 +245,7 @@ export function SettingsView({
               className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 py-3 text-xs font-bold text-slate-800 hover:bg-white transition"
             >
               <Upload className="h-4 w-4 text-sky-600" />
-              <span>Importer JSON</span>
+              <span>Restaurer JSON</span>
             </button>
             <input
               ref={fileInputRef}
@@ -257,12 +257,12 @@ export function SettingsView({
           </div>
         </div>
 
-        {/* Security / PIN Card (Vendor account) */}
+        {/* Security / PIN Card */}
         {!isDriver && onChangePin ? (
           <div className="card-elevated rounded-3xl p-6 space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-                <KeyRound className="h-4 w-4" />
+            <div className="flex items-center gap-2.5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                <KeyRound className="h-5 w-5" />
               </div>
               <div>
                 <h3 className="font-black text-base text-slate-950">Code PIN de Sécurité</h3>
@@ -270,7 +270,7 @@ export function SettingsView({
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2.5">
               <input
                 type="password"
                 maxLength={4}
@@ -298,10 +298,10 @@ export function SettingsView({
           </div>
         ) : (
           <div className="card-elevated rounded-3xl p-6 space-y-3">
-            <h3 className="font-black text-base text-slate-950">À propos de votre compte Livreur</h3>
+            <h3 className="font-black text-base text-slate-950">Espace Livreur Isolé</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              Votre espace Livreur est entièrement dédié à vos tournées, votre stock véhicule, votre sacoche et vos
-              boutiques clientes. Vos données sont isolées et synchronisées sur votre compte personnel.
+              Votre compte Livreur est entièrement dédié à vos tournées, votre stock véhicule, votre sacoche et vos
+              boutiques clientes. Vos données sont stockées en local et synchronisées sur votre compte personnel.
             </p>
           </div>
         )}
