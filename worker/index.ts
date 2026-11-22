@@ -21,6 +21,9 @@ export interface Product {
   cost_price: number
   returnable: boolean
   supplier_name?: string
+  margin_type?: 'direct' | 'rebate'
+  rebate_type?: 'fixed' | 'percent'
+  rebate_value?: number
   is_active: boolean
   created_at: string
   updated_at: string
@@ -34,6 +37,9 @@ export interface DeliveryItem {
   selling_price: number
   cost_price: number
   returnable: boolean
+  margin_type?: 'direct' | 'rebate'
+  rebate_type?: 'fixed' | 'percent'
+  rebate_value?: number
 }
 
 export interface DeliveryBatch {
@@ -105,6 +111,9 @@ function parseProduct(raw: unknown): Product | null {
     cost_price: r.cost_price,
     returnable: r.returnable,
     supplier_name: typeof r.supplier_name === 'string' ? r.supplier_name : undefined,
+    margin_type: r.margin_type === 'rebate' ? 'rebate' : 'direct',
+    rebate_type: r.rebate_type === 'percent' ? 'percent' : r.rebate_type === 'fixed' ? 'fixed' : undefined,
+    rebate_value: isAmount(r.rebate_value) ? r.rebate_value : undefined,
     is_active: r.is_active,
     created_at: r.created_at as string,
     updated_at: r.updated_at as string,
@@ -126,6 +135,9 @@ function parseDeliveryItem(raw: unknown): DeliveryItem | null {
     selling_price: r.selling_price,
     cost_price: r.cost_price,
     returnable: r.returnable,
+    margin_type: r.margin_type === 'rebate' ? 'rebate' : 'direct',
+    rebate_type: r.rebate_type === 'percent' ? 'percent' : r.rebate_type === 'fixed' ? 'fixed' : undefined,
+    rebate_value: isAmount(r.rebate_value) ? r.rebate_value : undefined,
   }
 }
 
