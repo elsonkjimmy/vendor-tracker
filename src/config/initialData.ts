@@ -1,63 +1,6 @@
 import type { ClientBoutique, Product } from '../types'
 
-export const INITIAL_PRODUCTS: Product[] = [
-  {
-    id: 'prod_pain_100',
-    name: 'Pain 100 F',
-    category: 'Boulangerie',
-    selling_price: 100,
-    cost_price: 85,
-    returnable: true,
-    supplier_name: 'Boulangerie Centrale',
-    margin_type: 'direct',
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    deleted: false,
-  },
-  {
-    id: 'prod_pain_125',
-    name: 'Pain 125 F',
-    category: 'Boulangerie',
-    selling_price: 125,
-    cost_price: 110,
-    returnable: true,
-    supplier_name: 'Boulangerie Centrale',
-    margin_type: 'direct',
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    deleted: false,
-  },
-  {
-    id: 'prod_boule_50',
-    name: 'Boule 50 F',
-    category: 'Boulangerie',
-    selling_price: 50,
-    cost_price: 45,
-    returnable: true,
-    supplier_name: 'Boulangerie Centrale',
-    margin_type: 'direct',
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    deleted: false,
-  },
-  {
-    id: 'prod_croissant_150',
-    name: 'Croissant Beurre',
-    category: 'Viennoiserie',
-    selling_price: 150,
-    cost_price: 120,
-    returnable: false,
-    supplier_name: 'Pâtisserie Dorée',
-    margin_type: 'direct',
-    is_active: true,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    deleted: false,
-  },
-]
+export const INITIAL_PRODUCTS: Product[] = []
 
 export const INITIAL_CLIENTS: ClientBoutique[] = [
   {
