@@ -1,5 +1,5 @@
 import { Calendar, ChevronLeft, ChevronRight, Cloud, CloudOff, RefreshCw, ShieldCheck, Store, Truck } from 'lucide-react'
-import { formatShortDate } from '../lib/format'
+import { formatShortDate, shiftIsoDate } from '../lib/format'
 import type { VendorUser } from '../types'
 import type { AppMode } from './Navigation'
 
@@ -12,12 +12,6 @@ interface TopBarProps {
   onSyncNow: () => void
   onSwitchMode: (mode: AppMode) => void
   onOpenAuth: () => void
-}
-
-function shiftDate(iso: string, delta: number): string {
-  const d = new Date(iso + 'T00:00:00')
-  d.setDate(d.getDate() + delta)
-  return d.toISOString().slice(0, 10)
 }
 
 export function TopBar({
@@ -85,7 +79,7 @@ export function TopBar({
             <div className="flex items-center rounded-xl border border-slate-200/90 bg-slate-50/80 p-0.5 shadow-2xs">
               <button
                 type="button"
-                onClick={() => onDateChange(shiftDate(activeDate, -1))}
+                onClick={() => onDateChange(shiftIsoDate(activeDate, -1))}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-slate-950 transition"
                 title="Jour précédent"
               >
@@ -108,7 +102,7 @@ export function TopBar({
 
               <button
                 type="button"
-                onClick={() => onDateChange(shiftDate(activeDate, 1))}
+                onClick={() => onDateChange(shiftIsoDate(activeDate, 1))}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-slate-950 transition"
                 title="Jour suivant"
               >
