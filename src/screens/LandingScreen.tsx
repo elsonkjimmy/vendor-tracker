@@ -84,21 +84,21 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
             </a>
           </nav>
 
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
               onClick={onOpenAuth}
-              className="inline-flex items-center rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+              className="inline-flex items-center whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
             >
               Connexion
             </button>
             <button
               type="button"
               onClick={onStartApp}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-slate-950 px-4 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-slate-950/15 hover:bg-emerald-600 transition active:scale-95"
+              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-slate-950 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-slate-950/15 hover:bg-emerald-600 transition active:scale-95"
             >
               <span>Ouvrir l'App</span>
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 shrink-0" />
             </button>
           </div>
         </div>
@@ -111,10 +111,10 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
         <div className="pointer-events-none absolute top-40 right-0 h-80 w-80 rounded-full bg-teal-400/10 blur-3xl" />
 
         <div className="relative mx-auto max-w-5xl text-center animate-fade-up">
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/90 bg-white/90 px-4 py-1.5 text-xs font-bold text-slate-700 shadow-xs backdrop-blur-md">
-            <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Plateforme SaaS de suivi terrain, invendus & caisse</span>
-            <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 rounded-full border border-slate-200/90 bg-white/90 px-3.5 sm:px-4 py-1.5 text-[11px] sm:text-xs font-bold text-slate-700 shadow-xs backdrop-blur-md">
+            <span className="flex h-2 w-2 shrink-0 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Plateforme SaaS terrain, invendus & caisse</span>
+            <span className="hidden sm:inline-block whitespace-nowrap rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-extrabold text-emerald-700">
               v2.0 Desktop & Mobile
             </span>
           </div>
