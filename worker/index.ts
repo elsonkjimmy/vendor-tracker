@@ -393,13 +393,14 @@ export default {
           return json({ error: 'invalid_credentials', message: 'Identifiant (téléphone ou email) et mot de passe requis.' }, 400)
         }
         const cleanPhone = normalizePhone(rawIdentifier)
+        const localPhone = cleanPhone.replace(/^\+?237/, '')
         const cleanEmail = rawIdentifier.toLowerCase()
         const passwordHash = await sha256Hex(body.password)
 
         const user = await env.DB.prepare(
-          'SELECT id, name, phone, email, password_hash, account_type, is_admin, created_at FROM users WHERE phone = ? OR LOWER(email) = ? LIMIT 1'
+          'SELECT id, name, phone, email, password_hash, account_type, is_admin, created_at FROM users WHERE phone IN (?, ?) OR LOWER(email) = ? LIMIT 1'
         )
-          .bind(cleanPhone, cleanEmail)
+          .bind(cleanPhone, localPhone, cleanEmail)
           .first<{
             id: string
             name: string
@@ -697,6 +698,28 @@ export default {
           recent_activity: topRecentActivity,
           daily_trends: Array.from(dailyTrendsMap.values()),
         })
+      }
+
+      if (pathname === '/api/admin/reset-password' && request.method === 'POST') {
+        const caller = await env.DB.prepare('SELECT id, phone, email, is_admin FROM users WHERE id = ?')
+          .bind(accountId)
+          .first<{ id: string; phone: string; email: string | null; is_admin: number }>()
+
+        if (!(caller && (caller.is_admin === 1 || isSuperAdmin(caller.email, caller.phone)))) {
+          return json({ error: 'forbidden', message: 'Accès réservé au Super Administrateur.' }, 403)
+        }
+
+        const body = (await request.json().catch(() => null)) as { user_id?: string; new_password?: string } | null
+        if (!body || !isId(body.user_id) || !body.new_password || body.new_password.length < 4) {
+          return json({ error: 'invalid_data', message: 'ID utilisateur et nouveau mot de passe (4 car. min) requis.' }, 400)
+        }
+
+        const newHash = await sha256Hex(body.new_password)
+        const res = await env.DB.prepare('UPDATE users SET password_hash = ? WHERE id = ?').bind(newHash, body.user_id).run()
+        if (!res.meta.changes) {
+          return json({ error: 'not_found', message: 'Compte introuvable.' }, 404)
+        }
+        return json({ ok: true })
       }
 
       if (pathname === '/api/sync' && request.method === 'POST') {
