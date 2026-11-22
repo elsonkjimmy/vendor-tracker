@@ -61,10 +61,16 @@ export default function App() {
     setManagerPin(pin || '0000')
     setToken(storedToken || null)
     setUser(storedUser)
+    return storedUser
   }, [])
 
   useEffect(() => {
-    void loadData()
+    void loadData().then((storedUser) => {
+      if (storedUser) {
+        setManagerUnlocked(true)
+        setMode(storedUser.is_admin ? 'admin' : storedUser.account_type === 'driver' ? 'driver' : 'manager')
+      }
+    })
   }, [loadData])
 
   // Find or create active sheet for the selected date
@@ -89,33 +95,72 @@ export default function App() {
     }
   }
 
-  // Cloud Sync Handler
+  // Silent background sync using fresh IndexedDB data
+  const runSync = useCallback(
+    async (authToken: string, silent: boolean) => {
+      if (!navigator.onLine) {
+        if (!silent) {
+          notify(
+            'info',
+            'Mode hors-ligne actif',
+            'Vos données restent sauvegardées sur cet appareil et seront envoyées dès le retour du réseau.'
+          )
+        }
+        return
+      }
+      setSyncing(true)
+      try {
+        const [freshProducts, freshSheets, cursor] = await Promise.all([
+          db.getProducts(),
+          db.getSheets(),
+          db.getMeta<number>('sync_cursor'),
+        ])
+        const recordsToPush = [
+          ...freshProducts.map((value) => ({ kind: 'product' as const, value })),
+          ...freshSheets.map((value) => ({ kind: 'daily_sheet' as const, value })),
+        ]
+        const res = await api.sync(authToken, cursor || 0, recordsToPush)
+        for (const rec of res.records) {
+          if (rec.kind === 'product') await db.saveProduct(rec.value)
+          else if (rec.kind === 'daily_sheet') await db.saveSheet(rec.value)
+        }
+        await db.setMeta('sync_cursor', res.cursor)
+        await loadData()
+        if (!silent) {
+          notify('success', 'Synchronisation réussie', `${res.records.length} élément(s) mis à jour depuis Cloudflare D1.`)
+        }
+      } catch (err) {
+        if (!silent) {
+          notify('error', 'Synchronisation impossible', err instanceof Error ? err.message : 'Vérifiez votre connexion.')
+        }
+      } finally {
+        setSyncing(false)
+      }
+    },
+    [loadData, notify]
+  )
+
   const handleSyncNow = async () => {
     if (!token) {
       setShowAuthModal(true)
       return
     }
-    setSyncing(true)
-    try {
-      const cursor = (await db.getMeta<number>('sync_cursor')) || 0
-      const recordsToPush = [
-        ...products.map((value) => ({ kind: 'product' as const, value })),
-        ...allSheets.map((value) => ({ kind: 'daily_sheet' as const, value })),
-      ]
-      const res = await api.sync(token, cursor, recordsToPush)
-      for (const rec of res.records) {
-        if (rec.kind === 'product') await db.saveProduct(rec.value)
-        else if (rec.kind === 'daily_sheet') await db.saveSheet(rec.value)
-      }
-      await db.setMeta('sync_cursor', res.cursor)
-      await loadData()
-      notify('success', 'Synchronisation réussie', `${res.records.length} élément(s) mis à jour depuis Cloudflare D1.`)
-    } catch (err) {
-      notify('error', 'Synchronisation impossible', err instanceof Error ? err.message : 'Vérifiez votre connexion.')
-    } finally {
-      setSyncing(false)
-    }
+    await runSync(token, false)
   }
+
+  // Auto-sync when coming back online and periodically every 2 min
+  useEffect(() => {
+    if (!token) return
+    const onOnline = () => void runSync(token, true)
+    window.addEventListener('online', onOnline)
+    const timer = setInterval(() => {
+      if (navigator.onLine) void runSync(token, true)
+    }, 120_000)
+    return () => {
+      window.removeEventListener('online', onOnline)
+      clearInterval(timer)
+    }
+  }, [token, runSync])
 
   // Strict account separation handler
   const handleSwitchMode = (targetMode: AppMode) => {
@@ -166,6 +211,7 @@ export default function App() {
     })
     const totalQty = items.reduce((s, i) => s + i.quantity, 0)
     notify('success', 'Réception enregistrée', `${totalQty} pièce(s) ajoutée(s) à la journée du ${activeDate}.`)
+    if (token) void runSync(token, true)
   }
 
   const handleSaveClosing = async (unsolds: Record<string, number>, cashCollected?: number) => {
@@ -189,6 +235,7 @@ export default function App() {
     })
     const updatedTotals = calculateDailySheetTotals(updatedSheet, products)
     notify('success', 'Clôture du jour validée', `Recette caisse : ${formatFCFA(updatedTotals.total_employee_revenue)}`)
+    if (token) void runSync(token, true)
   }
 
   const handleSaveProduct = async (prodData: Partial<Product>) => {
@@ -222,6 +269,7 @@ export default function App() {
       setProducts((prev) => [...prev, created])
       notify('success', 'Produit ajouté au catalogue', created.name)
     }
+    if (token) void runSync(token, true)
   }
 
   const handleToggleProductActive = async (p: Product) => {
@@ -229,6 +277,7 @@ export default function App() {
     await db.saveProduct(updated)
     setProducts((prev) => prev.map((item) => (item.id === updated.id ? updated : item)))
     notify('info', updated.is_active ? 'Produit réactivé' : 'Produit désactivé', updated.name)
+    if (token) void runSync(token, true)
   }
 
   const handleDeleteProduct = async (id: string) => {
@@ -238,6 +287,7 @@ export default function App() {
       await db.saveProduct(deleted)
       setProducts((prev) => prev.filter((prod) => prod.id !== id))
       notify('info', 'Produit supprimé', p.name)
+      if (token) void runSync(token, true)
     }
   }
 
@@ -269,6 +319,7 @@ export default function App() {
       setManagerUnlocked(true)
       setMode('manager')
     }
+    void runSync(newToken, true)
   }
 
   const handleLogout = async () => {
