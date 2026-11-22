@@ -26,6 +26,20 @@ export function monthKeyOf(isoDate: string): string {
   return isoDate.slice(0, 7)
 }
 
+export function shiftIsoDate(isoDate: string, deltaDays: number): string {
+  const [y, m, d] = isoDate.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, m - 1, d + deltaDays))
+  return dt.toISOString().slice(0, 10)
+}
+
+export function getMondayOfIsoWeek(isoDate: string): string {
+  const [y, m, d] = isoDate.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, m - 1, d))
+  const diff = (dt.getUTCDay() + 6) % 7
+  dt.setUTCDate(dt.getUTCDate() - diff)
+  return dt.toISOString().slice(0, 10)
+}
+
 export function timeAgo(iso: string): string {
   const minutes = Math.round((Date.now() - new Date(iso).getTime()) / 60_000)
   if (minutes < 1) return "à l'instant"
