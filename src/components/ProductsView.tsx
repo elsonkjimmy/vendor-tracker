@@ -22,6 +22,18 @@ interface ProductsViewProps {
   onToggleActive: (p: Product) => Promise<void>
 }
 
+function productGainInfo(p: Product) {
+  if (p.margin_type === 'rebate') {
+    const val = p.rebate_value || 0
+    const unitGain = p.rebate_type === 'percent' ? Math.round(p.selling_price * (val / 100)) : val
+    const badge = p.rebate_type === 'percent' ? `${val}%` : `${formatFCFA(val)}/u`
+    return { isRebate: true, unitGain, subLabel: badge }
+  }
+  const margin = p.selling_price - p.cost_price
+  const marginPct = p.selling_price > 0 ? Math.round((margin / p.selling_price) * 100) : 0
+  return { isRebate: false, unitGain: margin, subLabel: `${marginPct}%` }
+}
+
 export function ProductsView({ products, onOpenProductModal, onToggleActive }: ProductsViewProps) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'returnable' | 'non_returnable' | 'inactive'>('all')
@@ -257,12 +269,18 @@ export function ProductsView({ products, onOpenProductModal, onToggleActive }: P
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {filtered.map((p) => {
-                  const margin = p.selling_price - p.cost_price
-                  const marginPct = p.selling_price > 0 ? Math.round((margin / p.selling_price) * 100) : 0
+                  const gain = productGainInfo(p)
                   return (
                     <tr key={p.id} className={`hover:bg-slate-50/80 transition ${!p.is_active ? 'opacity-55' : ''}`}>
                       <td className="py-3.5 px-5">
-                        <p className="font-extrabold text-slate-950">{p.name}</p>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-extrabold text-slate-950">{p.name}</p>
+                          {gain.isRebate && (
+                            <span className="rounded-md bg-purple-100 px-1.5 py-0.5 text-[9px] font-bold text-purple-800">
+                              Ristourne
+                            </span>
+                          )}
+                        </div>
                         {p.category && <span className="text-[10px] font-semibold text-slate-400">{p.category}</span>}
                       </td>
                       <td className="py-3.5 px-3 text-slate-600 font-medium">{p.supplier_name || '—'}</td>
@@ -273,7 +291,7 @@ export function ProductsView({ products, onOpenProductModal, onToggleActive }: P
                         {formatFCFA(p.selling_price)}
                       </td>
                       <td className="py-3.5 px-3 text-right font-extrabold text-emerald-600 tabular-nums">
-                        +{formatFCFA(margin)} ({marginPct}%)
+                        +{formatFCFA(gain.unitGain)} ({gain.subLabel})
                       </td>
                       <td className="py-3.5 px-3 text-center">
                         <span
@@ -315,8 +333,7 @@ export function ProductsView({ products, onOpenProductModal, onToggleActive }: P
         /* Modern Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map((p) => {
-            const margin = p.selling_price - p.cost_price
-            const marginPct = p.selling_price > 0 ? Math.round((margin / p.selling_price) * 100) : 0
+            const gain = productGainInfo(p)
             return (
               <div
                 key={p.id}
@@ -332,6 +349,11 @@ export function ProductsView({ products, onOpenProductModal, onToggleActive }: P
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <h3 className="font-black text-base text-slate-950 truncate">{p.name}</h3>
+                        {gain.isRebate && (
+                          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[10px] font-bold text-purple-800">
+                            Ristourne
+                          </span>
+                        )}
                         {p.returnable ? (
                           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
                             <CheckCircle2 className="h-3 w-3" /> Repris
@@ -387,9 +409,11 @@ export function ProductsView({ products, onOpenProductModal, onToggleActive }: P
                     </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-bold uppercase text-emerald-700">Marge</p>
+                    <p className="text-[10px] font-bold uppercase text-emerald-700">
+                      {gain.isRebate ? 'Ristourne' : 'Marge'}
+                    </p>
                     <p className="mt-0.5 font-black text-sm text-emerald-600 tabular-nums">
-                      +{formatFCFA(margin)} <span className="text-[10px]">({marginPct}%)</span>
+                      +{formatFCFA(gain.unitGain)} <span className="text-[10px]">({gain.subLabel})</span>
                     </p>
                   </div>
                 </div>
