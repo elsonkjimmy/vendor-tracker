@@ -405,12 +405,12 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
 
       {/* Breakdown by Product */}
       <div className="card-elevated rounded-3xl p-5 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
             <h3 className="font-black text-lg text-slate-950">Performance par Produit</h3>
             <p className="text-xs text-slate-500">Part de chaque référence dans la recette de la période</p>
           </div>
-          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+          <span className="shrink-0 whitespace-nowrap rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
             {aggregated.productBreakdown.length} produit(s)
           </span>
         </div>
