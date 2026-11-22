@@ -15,6 +15,7 @@ import { ManagerScreen } from './screens/ManagerScreen'
 import type { ClientBoutique, DailySheet, DeliveryItem, Product, VendorUser } from './types'
 
 export default function App() {
+  const [booting, setBooting] = useState(true)
   const [mode, setMode] = useState<AppMode>('landing')
   const [driverTab, setDriverTab] = useState('tour')
   const [managerTab, setManagerTab] = useState('today')
@@ -65,12 +66,14 @@ export default function App() {
   }, [])
 
   useEffect(() => {
-    void loadData().then((storedUser) => {
-      if (storedUser) {
-        setManagerUnlocked(true)
-        setMode(storedUser.is_admin ? 'admin' : storedUser.account_type === 'driver' ? 'driver' : 'manager')
-      }
-    })
+    void loadData()
+      .then((storedUser) => {
+        if (storedUser) {
+          setManagerUnlocked(true)
+          setMode(storedUser.is_admin ? 'admin' : storedUser.account_type === 'driver' ? 'driver' : 'manager')
+        }
+      })
+      .finally(() => setBooting(false))
   }, [loadData])
 
   // Find or create active sheet for the selected date
@@ -328,6 +331,15 @@ export default function App() {
     setUser(null)
     if (mode === 'admin') setMode('landing')
     notify('info', 'Déconnecté', 'Vous avez été déconnecté de votre compte.')
+  }
+
+  // --- RENDER BOOT SPLASH (avoids Landing flash when already logged in) ---
+  if (booting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f8fafc]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+      </div>
+    )
   }
 
   // --- RENDER LANDING PAGE ---
