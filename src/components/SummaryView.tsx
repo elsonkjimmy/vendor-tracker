@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { calculateDailySheetTotals } from '../lib/calc'
-import { formatDate, formatFCFA, formatNumber, formatShortDate } from '../lib/format'
+import { formatDate, formatFCFA, formatNumber, formatShortDate, getMondayOfIsoWeek, shiftIsoDate } from '../lib/format'
 import { openWhatsApp } from '../lib/share'
 import type { DailySheet, Product } from '../types'
 
@@ -24,30 +24,16 @@ interface SummaryViewProps {
   businessName: string
 }
 
-function addDays(isoDate: string, delta: number): string {
-  const d = new Date(isoDate + 'T00:00:00')
-  d.setDate(d.getDate() + delta)
-  return d.toISOString().slice(0, 10)
-}
-
-function getMondayOfWeek(isoDate: string): string {
-  const d = new Date(isoDate + 'T00:00:00')
-  const day = d.getDay()
-  const diff = (day + 6) % 7
-  d.setDate(d.getDate() - diff)
-  return d.toISOString().slice(0, 10)
-}
-
 function shiftMonth(ym: string, delta: number): string {
   const [y, m] = ym.split('-').map(Number)
-  const d = new Date(y, m - 1 + delta, 1)
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+  const d = new Date(Date.UTC(y, m - 1 + delta, 1))
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`
 }
 
 export function SummaryView({ allSheets, products, activeDate, businessName }: SummaryViewProps) {
   const [period, setPeriod] = useState<PeriodMode>('month')
   const [dayCursor, setDayCursor] = useState(activeDate)
-  const [weekStart, setWeekStart] = useState(() => getMondayOfWeek(activeDate))
+  const [weekStart, setWeekStart] = useState(() => getMondayOfIsoWeek(activeDate))
   const [monthCursor, setMonthCursor] = useState(() => activeDate.slice(0, 7))
 
   const { label, filteredSheets, chartDays } = useMemo(() => {
@@ -60,9 +46,9 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
     }
 
     if (period === 'week') {
-      const weekEnd = addDays(weekStart, 6)
+      const weekEnd = shiftIsoDate(weekStart, 6)
       const days: string[] = []
-      for (let i = 0; i < 7; i++) days.push(addDays(weekStart, i))
+      for (let i = 0; i < 7; i++) days.push(shiftIsoDate(weekStart, i))
       return {
         label: `${formatShortDate(weekStart)} – ${formatShortDate(weekEnd)}`,
         filteredSheets: allSheets.filter((s) => s.date >= weekStart && s.date <= weekEnd),
@@ -160,8 +146,8 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
   }, [filteredSheets, products])
 
   const handleShift = (delta: number) => {
-    if (period === 'day') setDayCursor((d) => addDays(d, delta))
-    else if (period === 'week') setWeekStart((w) => addDays(w, delta * 7))
+    if (period === 'day') setDayCursor((d) => shiftIsoDate(d, delta))
+    else if (period === 'week') setWeekStart((w) => shiftIsoDate(w, delta * 7))
     else setMonthCursor((m) => shiftMonth(m, delta))
   }
 
