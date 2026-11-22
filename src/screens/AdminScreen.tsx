@@ -179,6 +179,9 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'new' | 'dormant'>('all')
   const [selectedVendor, setSelectedVendor] = useState<AdminVendorEnriched | null>(null)
+  const [newPwd, setNewPwd] = useState('')
+  const [resettingPwd, setResettingPwd] = useState(false)
+  const [resetPwdMsg, setResetPwdMsg] = useState<string | null>(null)
 
   const fetchData = async () => {
     if (!token) {
@@ -627,9 +630,50 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
               )}
             </div>
 
+            {/* Super Admin Password Reset for this account */}
+            {token && !isDemoMode && (
+              <div className="rounded-2xl border border-purple-200/80 bg-purple-50/50 p-4 space-y-2.5">
+                <p className="text-xs font-extrabold text-purple-950">Réinitialiser le mot de passe de ce compte</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Nouveau mot de passe (4 car. min)"
+                    value={newPwd}
+                    onChange={(e) => setNewPwd(e.target.value)}
+                    className="flex-1 rounded-xl border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-slate-900 focus:border-purple-600 focus:outline-hidden"
+                  />
+                  <button
+                    type="button"
+                    disabled={resettingPwd || newPwd.length < 4}
+                    onClick={async () => {
+                      setResettingPwd(true)
+                      setResetPwdMsg(null)
+                      try {
+                        await api.adminResetPassword(token, selectedVendor.id, newPwd)
+                        setNewPwd('')
+                        setResetPwdMsg('Mot de passe mis à jour avec succès !')
+                      } catch (err) {
+                        setResetPwdMsg(err instanceof Error ? err.message : 'Erreur lors de la réinitialisation')
+                      } finally {
+                        setResettingPwd(false)
+                      }
+                    }}
+                    className="rounded-xl bg-purple-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-purple-800 disabled:opacity-50 transition"
+                  >
+                    {resettingPwd ? '...' : 'Appliquer'}
+                  </button>
+                </div>
+                {resetPwdMsg && <p className="text-[11px] font-bold text-purple-800">{resetPwdMsg}</p>}
+              </div>
+            )}
+
             <button
               type="button"
-              onClick={() => setSelectedVendor(null)}
+              onClick={() => {
+                setSelectedVendor(null)
+                setNewPwd('')
+                setResetPwdMsg(null)
+              }}
               className="w-full rounded-2xl bg-slate-950 py-3 font-bold text-white hover:bg-slate-800 transition"
             >
               Fermer
