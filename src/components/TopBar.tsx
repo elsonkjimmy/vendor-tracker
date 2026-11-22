@@ -33,20 +33,23 @@ export function TopBar({
   const today = new Date().toISOString().slice(0, 10)
   const isToday = activeDate === today
 
+  const displayName = user?.name?.trim()
+
   const desktopTitle =
     mode === 'admin'
       ? 'Supervision Super Admin'
-      : mode === 'driver'
-        ? 'Espace Livreur • Tournée'
-        : 'Espace Vendeur • Boutique'
+      : displayName || (mode === 'driver' ? 'Espace Livreur • Tournée' : 'Espace Vendeur • Boutique')
 
-  const mobileTitle = mode === 'admin' ? 'Super Admin' : mode === 'driver' ? 'Livreur' : 'Ma Boutique'
+  const mobileTitle =
+    mode === 'admin'
+      ? 'Super Admin'
+      : displayName || (mode === 'driver' ? 'Livreur' : 'Ma Boutique')
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl px-4 py-2.5 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl px-3.5 py-2.5 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 sm:gap-4">
-        {/* Left: Brand + Title */}
-        <div className="flex items-center gap-2.5 min-w-0">
+        {/* Left: Brand + Title (handles long names cleanly without overflow) */}
+        <div className="flex items-center gap-2.5 min-w-0 flex-1 overflow-hidden">
           <button
             type="button"
             onClick={() => onSwitchMode('landing')}
@@ -55,15 +58,23 @@ export function TopBar({
           >
             {mode === 'driver' ? <Truck className="h-4 w-4" /> : <Store className="h-4 w-4" />}
           </button>
-          <div className="min-w-0">
-            <h1 className="sm:hidden font-black text-base tracking-tight text-slate-950 whitespace-nowrap">
+          <div className="min-w-0 flex-1">
+            <h1
+              className="sm:hidden truncate font-black text-[15px] tracking-tight text-slate-950"
+              title={mobileTitle}
+            >
               {mobileTitle}
             </h1>
-            <h1 className="hidden sm:block truncate font-black text-base tracking-tight text-slate-950">
+            <h1
+              className="hidden sm:block truncate font-black text-base tracking-tight text-slate-950"
+              title={desktopTitle}
+            >
               {desktopTitle}
             </h1>
-            <p className="hidden sm:block text-[11px] font-medium text-slate-500">
-              {user ? `Connecté : ${user.name}` : 'Mode local hors-ligne'}
+            <p className="hidden sm:block truncate text-[11px] font-medium text-slate-500">
+              {user
+                ? `${mode === 'admin' ? 'Super Admin' : mode === 'driver' ? 'Compte Livreur' : 'Compte Vendeur'} • ${user.phone}`
+                : 'Mode local hors-ligne'}
             </p>
           </div>
         </div>
