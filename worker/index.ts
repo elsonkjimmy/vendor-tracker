@@ -8,6 +8,7 @@ export interface User {
   name: string
   phone: string
   email?: string
+  account_type: 'vendor' | 'driver'
   is_admin: boolean
   created_at: string
 }
@@ -326,12 +327,14 @@ export default {
           phone?: string
           password?: string
           email?: string
+          account_type?: string
         } | null
         if (!body || !body.name?.trim() || !body.phone?.trim() || !body.password || body.password.length < 4) {
           return json({ error: 'invalid_data', message: 'Nom, téléphone et mot de passe (4 car. min) requis.' }, 400)
         }
         const cleanPhone = normalizePhone(body.phone)
         const cleanEmail = body.email?.trim().toLowerCase() || null
+        const accountType: 'vendor' | 'driver' = body.account_type === 'driver' ? 'driver' : 'vendor'
         const passwordHash = await sha256Hex(body.password)
         const userId = await sha256Hex(`usr_${cleanPhone}`)
         const now = new Date().toISOString()
@@ -347,9 +350,9 @@ export default {
         }
 
         await env.DB.prepare(
-          'INSERT INTO users (id, name, phone, email, password_hash, is_admin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+          'INSERT INTO users (id, name, phone, email, password_hash, account_type, is_admin, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         )
-          .bind(userId, body.name.trim(), cleanPhone, cleanEmail, passwordHash, isAdmin, now)
+          .bind(userId, body.name.trim(), cleanPhone, cleanEmail, passwordHash, accountType, isAdmin, now)
           .run()
 
         return json({
@@ -360,6 +363,7 @@ export default {
             name: body.name.trim(),
             phone: cleanPhone,
             email: cleanEmail,
+            account_type: accountType,
             is_admin: Boolean(isAdmin),
             created_at: now,
           },
@@ -381,7 +385,7 @@ export default {
         const passwordHash = await sha256Hex(body.password)
 
         const user = await env.DB.prepare(
-          'SELECT id, name, phone, email, password_hash, is_admin, created_at FROM users WHERE phone = ? OR LOWER(email) = ? LIMIT 1'
+          'SELECT id, name, phone, email, password_hash, account_type, is_admin, created_at FROM users WHERE phone = ? OR LOWER(email) = ? LIMIT 1'
         )
           .bind(cleanPhone, cleanEmail)
           .first<{
@@ -390,6 +394,7 @@ export default {
             phone: string
             email: string | null
             password_hash: string
+            account_type?: string
             is_admin: number
             created_at: string
           }>()
@@ -407,6 +412,7 @@ export default {
             name: user.name,
             phone: user.phone,
             email: user.email ?? undefined,
+            account_type: user.account_type === 'driver' ? 'driver' : 'vendor',
             is_admin: isAdmin,
             created_at: user.created_at,
           },
@@ -419,13 +425,14 @@ export default {
       }
 
       if (pathname === '/api/auth/me' && request.method === 'GET') {
-        const caller = await env.DB.prepare('SELECT id, name, phone, email, is_admin, created_at FROM users WHERE id = ?')
+        const caller = await env.DB.prepare('SELECT id, name, phone, email, account_type, is_admin, created_at FROM users WHERE id = ?')
           .bind(accountId)
           .first<{
             id: string
             name: string
             phone: string
             email: string | null
+            account_type?: string
             is_admin: number
             created_at: string
           }>()
@@ -438,6 +445,7 @@ export default {
             name: caller.name,
             phone: caller.phone,
             email: caller.email ?? undefined,
+            account_type: caller.account_type === 'driver' ? 'driver' : 'vendor',
             is_admin: isAdmin,
             created_at: caller.created_at,
           },
