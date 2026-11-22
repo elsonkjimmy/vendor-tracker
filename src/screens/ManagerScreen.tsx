@@ -1,11 +1,10 @@
-import { Download, Package, PlusCircle, RotateCcw, Share2, TrendingUp, Wallet } from 'lucide-react'
+import { Package, PlusCircle, RotateCcw, Share2, TrendingUp, Wallet } from 'lucide-react'
 import { useState } from 'react'
 import { GainHero } from '../components/GainHero'
 import { HistoryCalendar } from '../components/HistoryCalendar'
 import { ProductsView } from '../components/ProductsView'
 import { SettingsView } from '../components/SettingsView'
 import { SummaryView } from '../components/SummaryView'
-import { exportDayTotalsCsv } from '../lib/exportCsv'
 import { formatFCFA, formatNumber } from '../lib/format'
 import { generateReceiptCanvasBlob, generateWhatsAppMessage, openWhatsApp } from '../lib/share'
 import type { DailySheet, DayTotals, Product, VendorUser } from '../types'
@@ -181,17 +180,6 @@ export function ManagerScreen({
           >
             <RotateCcw className="h-4 w-4 text-amber-600" />
             <span>Clôturer & Invendus</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              exportDayTotalsCsv(totals)
-              onNotify('success', 'Export CSV réussi', `Fichier bilan-${totals.date}.csv téléchargé.`)
-            }}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 px-4 font-bold text-xs text-slate-700 hover:bg-slate-50 transition active:scale-95"
-          >
-            <Download className="h-4 w-4 text-slate-500" />
-            <span>CSV</span>
           </button>
         </div>
 

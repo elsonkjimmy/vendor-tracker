@@ -344,7 +344,6 @@ export default function App() {
               token={token}
               onBack={() => setMode('manager')}
               onLoginRequest={() => setShowAuthModal(true)}
-              onNotify={notify}
             />
           ) : mode === 'driver' ? (
             <DriverScreen

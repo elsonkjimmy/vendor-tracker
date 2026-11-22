@@ -1,5 +1,6 @@
 import {
   BarChart3,
+  CalendarDays,
   ChevronLeft,
   ChevronRight,
   Package,
@@ -32,7 +33,7 @@ function addDays(isoDate: string, delta: number): string {
 function getMondayOfWeek(isoDate: string): string {
   const d = new Date(isoDate + 'T00:00:00')
   const day = d.getDay()
-  const diff = (day + 6) % 7 // Monday = 0
+  const diff = (day + 6) % 7
   d.setDate(d.getDate() - diff)
   return d.toISOString().slice(0, 10)
 }
@@ -51,10 +52,9 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
 
   const { label, filteredSheets, chartDays } = useMemo(() => {
     if (period === 'day') {
-      const sheets = allSheets.filter((s) => s.date === dayCursor)
       return {
         label: formatDate(dayCursor),
-        filteredSheets: sheets,
+        filteredSheets: allSheets.filter((s) => s.date === dayCursor),
         chartDays: [dayCursor],
       }
     }
@@ -63,26 +63,23 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
       const weekEnd = addDays(weekStart, 6)
       const days: string[] = []
       for (let i = 0; i < 7; i++) days.push(addDays(weekStart, i))
-      const sheets = allSheets.filter((s) => s.date >= weekStart && s.date <= weekEnd)
       return {
         label: `${formatShortDate(weekStart)} – ${formatShortDate(weekEnd)}`,
-        filteredSheets: sheets,
+        filteredSheets: allSheets.filter((s) => s.date >= weekStart && s.date <= weekEnd),
         chartDays: days,
       }
     }
 
-    // month
     const [y, m] = monthCursor.split('-').map(Number)
     const daysInMonth = new Date(y, m, 0).getDate()
     const days: string[] = []
     for (let d = 1; d <= daysInMonth; d++) {
       days.push(`${monthCursor}-${String(d).padStart(2, '0')}`)
     }
-    const sheets = allSheets.filter((s) => s.date.startsWith(monthCursor))
     const monthName = new Date(y, m - 1, 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
     return {
       label: monthName,
-      filteredSheets: sheets,
+      filteredSheets: allSheets.filter((s) => s.date.startsWith(monthCursor)),
       chartDays: days,
     }
   }, [allSheets, period, dayCursor, weekStart, monthCursor])
@@ -99,15 +96,7 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
     const byDate = new Map<string, { revenue: number; profit: number; sold: number }>()
     const byProduct = new Map<
       string,
-      {
-        id: string
-        name: string
-        delivered: number
-        sold: number
-        unsold: number
-        revenue: number
-        profit: number
-      }
+      { id: string; name: string; delivered: number; sold: number; unsold: number; revenue: number; profit: number }
     >()
 
     for (const s of filteredSheets) {
@@ -204,199 +193,253 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
 
   return (
     <div className="space-y-6 animate-fade-up">
-      {/* Period Selector & Navigator */}
-      <div className="card-elevated rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Segmented Period Tabs */}
-        <div className="inline-flex rounded-2xl bg-slate-100 p-1 text-xs font-bold">
-          {(
-            [
-              { id: 'day', label: 'Par Jour' },
-              { id: 'week', label: 'Par Semaine' },
-              { id: 'month', label: 'Par Mois' },
-            ] as const
-          ).map(({ id, label: tabLabel }) => (
-            <button
-              key={id}
-              type="button"
-              onClick={() => setPeriod(id)}
-              className={`rounded-xl px-4 py-2 transition ${
-                period === id ? 'bg-slate-950 text-white shadow-xs' : 'text-slate-600 hover:text-slate-950'
-              }`}
-            >
-              {tabLabel}
-            </button>
-          ))}
+      {/* Executive Header + Period Switcher */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="font-black text-2xl tracking-tight text-slate-950">Bilan & Performance</h2>
+          <p className="text-xs font-medium text-slate-500">
+            Analysez vos recettes, bénéfices nets et invendus par jour, semaine ou mois
+          </p>
         </div>
 
-        {/* Date Range Switcher */}
-        <div className="flex items-center justify-between sm:justify-end gap-2">
-          <button
-            type="button"
-            onClick={() => handleShift(-1)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition"
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <span className="min-w-[150px] text-center font-black text-sm text-slate-950 capitalize">{label}</span>
-          <button
-            type="button"
-            onClick={() => handleShift(1)}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition"
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Segmented Pill */}
+          <div className="inline-flex rounded-2xl border border-slate-200/80 bg-white p-1 text-xs font-bold shadow-2xs">
+            {(
+              [
+                { id: 'day', label: 'Jour' },
+                { id: 'week', label: 'Semaine' },
+                { id: 'month', label: 'Mois' },
+              ] as const
+            ).map(({ id, label: tabLabel }) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setPeriod(id)}
+                className={`rounded-xl px-4 py-2 transition ${
+                  period === id ? 'bg-slate-950 text-white shadow-xs' : 'text-slate-600 hover:text-slate-950'
+                }`}
+              >
+                {tabLabel}
+              </button>
+            ))}
+          </div>
+
+          {/* Date Range Navigator */}
+          <div className="inline-flex items-center gap-1 rounded-2xl border border-slate-200/80 bg-white p-1 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => handleShift(-1)}
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition"
+              aria-label="Période précédente"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="inline-flex items-center gap-1.5 px-3 text-xs font-extrabold text-slate-950 capitalize min-w-[130px] justify-center">
+              <CalendarDays className="h-3.5 w-3.5 text-emerald-600" />
+              {label}
+            </span>
+            <button
+              type="button"
+              onClick={() => handleShift(1)}
+              className="flex h-8 w-8 items-center justify-center rounded-xl text-slate-600 hover:bg-slate-100 transition"
+              aria-label="Période suivante"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Hero Summary Card */}
-      <div className="rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 sm:p-7 text-white shadow-xl">
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div>
-            <span className="text-[11px] font-extrabold uppercase tracking-widest text-emerald-400">
-              Bilan {period === 'day' ? 'Journalier' : period === 'week' ? 'Hebdomadaire' : 'Mensuel'} • {label}
-            </span>
-            <p className="mt-2 font-black text-3xl sm:text-4xl tabular-nums tracking-tight">
+      {/* Main Executive Banner + 4 KPI Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        {/* Left Dark Executive Summary */}
+        <div className="lg:col-span-5 relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 p-6 text-white shadow-xl flex flex-col justify-between">
+          <div className="pointer-events-none absolute -top-12 -right-12 h-40 w-40 rounded-full bg-emerald-500/20 blur-2xl" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-emerald-300">
+                {period === 'day' ? 'Jour' : period === 'week' ? 'Semaine' : 'Mois'} • {label}
+              </span>
+              <span className="text-xs font-bold text-slate-400">{aggregated.closedDays} j. clôturé(s)</span>
+            </div>
+
+            <p className="mt-5 text-xs font-bold uppercase tracking-wider text-slate-400">Recette Totale Encaissée</p>
+            <p className="mt-1 font-black text-3xl sm:text-4xl tracking-tight tabular-nums">
               {formatFCFA(aggregated.totalRevenue)}
             </p>
-            <p className="mt-1 text-xs text-slate-300">
-              Recette caisse cumulée sur {aggregated.closedDays} journée(s) clôturée(s)
+            <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+              <TrendingUp className="h-4 w-4" />
+              <span>
+                Bénéfice net : +{formatFCFA(aggregated.totalProfit)} ({aggregated.marginRate}%)
+              </span>
             </p>
           </div>
 
           <button
             type="button"
             onClick={handleSharePeriodWhatsApp}
-            className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2.5 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition active:scale-95"
+            className="relative z-10 mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 py-3 text-xs font-extrabold text-slate-950 hover:bg-emerald-400 transition active:scale-95"
           >
             <Share2 className="h-4 w-4" />
-            <span>Partager Bilan WhatsApp</span>
+            <span>Envoyer ce bilan sur WhatsApp</span>
           </button>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-3 border-t border-white/10 pt-5 text-xs">
-          <div className="rounded-2xl bg-white/5 p-3">
-            <p className="text-slate-400">Bénéfice Net</p>
-            <p className="mt-0.5 font-black text-base text-emerald-400 tabular-nums">
-              +{formatFCFA(aggregated.totalProfit)}
-            </p>
-            <p className="text-[10px] text-slate-400">Marge {aggregated.marginRate}%</p>
+        {/* Right 2x2 KPI Grid */}
+        <div className="lg:col-span-7 grid grid-cols-2 gap-4">
+          <div className="card-elevated rounded-3xl p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Bénéfice Net</span>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
+                <TrendingUp className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <p className="font-black text-2xl text-emerald-600 tabular-nums">+{formatFCFA(aggregated.totalProfit)}</p>
+              <p className="mt-1 text-xs font-medium text-slate-500">Taux de marge : {aggregated.marginRate}%</p>
+            </div>
           </div>
-          <div className="rounded-2xl bg-white/5 p-3">
-            <p className="text-slate-400">Dû Fournisseur</p>
-            <p className="mt-0.5 font-black text-base text-white tabular-nums">
-              {formatFCFA(aggregated.totalSupplierDue)}
-            </p>
-            <p className="text-[10px] text-slate-400">Coût marchandises</p>
+
+          <div className="card-elevated rounded-3xl p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Dû Fournisseur</span>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-700">
+                <Wallet className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <p className="font-black text-2xl text-slate-950 tabular-nums">
+                {formatFCFA(aggregated.totalSupplierDue)}
+              </p>
+              <p className="mt-1 text-xs font-medium text-slate-500">Moy. {formatFCFA(aggregated.avgPerDay)} / jour</p>
+            </div>
           </div>
-          <div className="rounded-2xl bg-white/5 p-3">
-            <p className="text-slate-400">Articles Vendus</p>
-            <p className="mt-0.5 font-black text-base text-white tabular-nums">
-              {formatNumber(aggregated.totalSold)} pcs
-            </p>
-            <p className="text-[10px] text-slate-400">sur {formatNumber(aggregated.totalDelivered)} reçus</p>
+
+          <div className="card-elevated rounded-3xl p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Articles Vendus</span>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
+                <Package className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <p className="font-black text-2xl text-slate-950 tabular-nums">
+                {formatNumber(aggregated.totalSold)}{' '}
+                <span className="text-xs font-semibold text-slate-400">pcs</span>
+              </p>
+              <p className="mt-1 text-xs font-medium text-slate-500">
+                Sur {formatNumber(aggregated.totalDelivered)} reçues
+              </p>
+            </div>
           </div>
-          <div className="rounded-2xl bg-white/5 p-3">
-            <p className="text-slate-400">Invendus / Moyenne</p>
-            <p className="mt-0.5 font-black text-base text-amber-300 tabular-nums">
-              {formatNumber(aggregated.totalUnsold)} pcs
-            </p>
-            <p className="text-[10px] text-slate-400">
-              {aggregated.unsoldRate}% • Moy. {formatFCFA(aggregated.avgPerDay)}/j
-            </p>
+
+          <div className="card-elevated rounded-3xl p-5 flex flex-col justify-between">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Invendus</span>
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
+                <RotateCcw className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <p className="font-black text-2xl text-amber-600 tabular-nums">
+                {formatNumber(aggregated.totalUnsold)}{' '}
+                <span className="text-xs font-semibold text-amber-500">pcs</span>
+              </p>
+              <p className="mt-1 text-xs font-medium text-slate-500">Taux : {aggregated.unsoldRate}% du stock</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Period Chart (for Week & Month) */}
+      {/* Period Bar Chart (Week & Month) */}
       {period !== 'day' && (
         <div className="card-elevated rounded-3xl p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-bold text-base text-slate-950">
-                Évolution des Recettes ({period === 'week' ? '7 jours' : 'Mois complet'})
+              <h3 className="font-black text-base text-slate-950">
+                Courbe des Recettes ({period === 'week' ? '7 jours' : 'Mois complet'})
               </h3>
-              <p className="text-xs text-slate-500">Survolez une barre pour voir la recette et le bénéfice du jour</p>
+              <p className="text-xs text-slate-500">Survolez chaque barre pour consulter le détail du jour</p>
             </div>
             <BarChart3 className="h-5 w-5 text-slate-400" />
           </div>
 
-          <div className="flex h-48 items-end gap-1 sm:gap-2 pt-4 border-b border-slate-100 pb-2 overflow-x-auto">
-            {chartSeries.map((c) => {
-              const pct = c.revenue > 0 ? Math.max(10, Math.round((c.revenue / maxChartRev) * 100)) : 4
-              return (
-                <div
-                  key={c.date}
-                  className="group relative flex flex-1 min-w-[18px] flex-col items-center justify-end h-full"
-                >
-                  <div className="pointer-events-none absolute -top-12 hidden rounded-xl bg-slate-950 px-2.5 py-1.5 text-center text-[10px] font-bold text-white shadow-xl group-hover:block whitespace-nowrap z-20">
-                    <div>{formatShortDate(c.date)}</div>
-                    <div className="text-emerald-400">{formatFCFA(c.revenue)}</div>
-                  </div>
+          <div className="relative pt-6">
+            <div className="pointer-events-none absolute inset-x-0 top-6 bottom-8 flex flex-col justify-between">
+              <div className="border-b border-dashed border-slate-100" />
+              <div className="border-b border-dashed border-slate-100" />
+              <div className="border-b border-dashed border-slate-100" />
+            </div>
+
+            <div className="relative flex h-48 items-end gap-1.5 sm:gap-2.5 border-b border-slate-200 pb-2 overflow-x-auto">
+              {chartSeries.map((c) => {
+                const pct = c.revenue > 0 ? Math.max(10, Math.round((c.revenue / maxChartRev) * 100)) : 3
+                return (
                   <div
-                    className={`w-full max-w-[36px] rounded-t-lg transition-all ${
-                      c.revenue > 0
-                        ? 'bg-gradient-to-t from-slate-900 via-emerald-700 to-emerald-400 group-hover:brightness-110'
-                        : 'bg-slate-100'
-                    }`}
-                    style={{ height: `${pct}%` }}
-                  />
-                  <span className="mt-1.5 text-[9px] font-bold text-slate-400">
-                    {period === 'week' ? formatShortDate(c.date).slice(0, 6) : c.date.slice(8)}
-                  </span>
-                </div>
-              )
-            })}
+                    key={c.date}
+                    className="group relative flex flex-1 min-w-[18px] flex-col items-center justify-end h-full"
+                  >
+                    <div className="pointer-events-none absolute -top-12 hidden rounded-xl bg-slate-950 px-2.5 py-1.5 text-center text-[10px] font-bold text-white shadow-xl group-hover:block whitespace-nowrap z-20">
+                      <div>{formatShortDate(c.date)}</div>
+                      <div className="text-emerald-400">{formatFCFA(c.revenue)}</div>
+                    </div>
+                    <div
+                      className={`w-full max-w-[36px] rounded-t-xl transition-all duration-300 ${
+                        c.revenue > 0
+                          ? 'bg-gradient-to-t from-slate-900 via-emerald-700 to-emerald-400 group-hover:brightness-110'
+                          : 'bg-slate-100'
+                      }`}
+                      style={{ height: `${pct}%` }}
+                    />
+                    <span className="mt-2 text-[9px] font-bold text-slate-400">
+                      {period === 'week' ? formatShortDate(c.date).slice(0, 6) : c.date.slice(8)}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Breakdown by Product on the selected period */}
+      {/* Breakdown by Product */}
       <div className="card-elevated rounded-3xl p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-black text-lg text-slate-950">Performance par Produit</h3>
-            <p className="text-xs text-slate-500">Classement par chiffre d'affaires sur la période choisie</p>
+            <p className="text-xs text-slate-500">Part de chaque référence dans la recette de la période</p>
           </div>
-          <div className="flex items-center gap-3 text-xs font-bold text-slate-500">
-            <span className="inline-flex items-center gap-1">
-              <Wallet className="h-3.5 w-3.5 text-slate-400" /> CA
-            </span>
-            <span className="inline-flex items-center gap-1 text-emerald-600">
-              <TrendingUp className="h-3.5 w-3.5" /> Profit
-            </span>
-          </div>
+          <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">
+            {aggregated.productBreakdown.length} produit(s)
+          </span>
         </div>
 
         {aggregated.productBreakdown.length === 0 ? (
           <div className="py-10 text-center space-y-2">
             <Package className="mx-auto h-9 w-9 text-slate-300" />
-            <p className="text-xs font-bold text-slate-500">Aucune vente enregistrée sur cette période.</p>
+            <p className="text-xs font-bold text-slate-500">Aucune vente clôturée sur cette période.</p>
           </div>
         ) : (
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {aggregated.productBreakdown.map((p) => {
               const share = aggregated.totalRevenue > 0 ? Math.round((p.revenue / aggregated.totalRevenue) * 100) : 0
               return (
                 <div
                   key={p.id}
-                  className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 space-y-2.5"
+                  className="rounded-2xl border border-slate-200/70 bg-slate-50/70 p-4 space-y-3"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-start justify-between gap-2">
                     <div>
                       <p className="font-extrabold text-sm text-slate-950">{p.name}</p>
-                      <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-2">
-                        <span>Livré : <b>{p.delivered}</b></span>
-                        <span>•</span>
-                        <span className="text-emerald-700">Vendu : <b>{p.sold}</b></span>
-                        <span>•</span>
-                        <span className="text-amber-700 inline-flex items-center gap-0.5">
-                          <RotateCcw className="h-3 w-3" /> Invendu : <b>{p.unsold}</b>
-                        </span>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Livré <b>{p.delivered}</b> • Vendu <b className="text-emerald-700">{p.sold}</b> • Invendu{' '}
+                        <b className="text-amber-600">{p.unsold}</b>
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="font-black text-sm text-slate-950 tabular-nums">{formatFCFA(p.revenue)}</p>
-                      <p className="text-xs font-bold text-emerald-600 tabular-nums">+{formatFCFA(p.profit)}</p>
+                      <p className="text-[11px] font-bold text-emerald-600 tabular-nums">+{formatFCFA(p.profit)}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">

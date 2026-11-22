@@ -1,4 +1,5 @@
-import { Calendar, Cloud, CloudOff, RefreshCw, ShieldCheck, Store, Truck } from 'lucide-react'
+import { Calendar, ChevronLeft, ChevronRight, Cloud, CloudOff, RefreshCw, ShieldCheck, Store, Truck } from 'lucide-react'
+import { formatShortDate } from '../lib/format'
 import type { VendorUser } from '../types'
 import type { AppMode } from './Navigation'
 
@@ -13,6 +14,12 @@ interface TopBarProps {
   onOpenAuth: () => void
 }
 
+function shiftDate(iso: string, delta: number): string {
+  const d = new Date(iso + 'T00:00:00')
+  d.setDate(d.getDate() + delta)
+  return d.toISOString().slice(0, 10)
+}
+
 export function TopBar({
   mode,
   activeDate,
@@ -23,6 +30,9 @@ export function TopBar({
   onSwitchMode,
   onOpenAuth,
 }: TopBarProps) {
+  const today = new Date().toISOString().slice(0, 10)
+  const isToday = activeDate === today
+
   const desktopTitle =
     mode === 'admin'
       ? 'Supervision Super Admin'
@@ -33,9 +43,9 @@ export function TopBar({
   const mobileTitle = mode === 'admin' ? 'Super Admin' : mode === 'driver' ? 'Livreur' : 'Ma Boutique'
 
   return (
-    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl px-4 py-3 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-20 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl px-4 py-2.5 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 sm:gap-4">
-        {/* Left: Brand + Title (never truncated on mobile) */}
+        {/* Left: Brand + Title */}
         <div className="flex items-center gap-2.5 min-w-0">
           <button
             type="button"
@@ -58,19 +68,52 @@ export function TopBar({
           </div>
         </div>
 
-        {/* Right: Controls */}
+        {/* Right: Day Selector & Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          {/* Date selector (hidden in admin mode) */}
           {mode !== 'admin' && (
-            <label className="relative flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700 hover:bg-white transition cursor-pointer">
-              <Calendar className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
-              <input
-                type="date"
-                value={activeDate}
-                onChange={(e) => e.target.value && onDateChange(e.target.value)}
-                className="bg-transparent text-xs font-bold text-slate-800 focus:outline-hidden cursor-pointer w-[108px] sm:w-auto"
-              />
-            </label>
+            <div className="flex items-center rounded-xl border border-slate-200/90 bg-slate-50/80 p-0.5 shadow-2xs">
+              <button
+                type="button"
+                onClick={() => onDateChange(shiftDate(activeDate, -1))}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-slate-950 transition"
+                title="Jour précédent"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+              </button>
+
+              <label className="relative flex items-center gap-1.5 px-2 py-1 text-xs font-extrabold text-slate-800 cursor-pointer hover:text-emerald-700 transition">
+                <Calendar className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                <span className="whitespace-nowrap">
+                  {isToday ? "Aujourd'hui" : formatShortDate(activeDate)}
+                </span>
+                <input
+                  type="date"
+                  value={activeDate}
+                  onChange={(e) => e.target.value && onDateChange(e.target.value)}
+                  className="absolute inset-0 opacity-0 cursor-pointer"
+                  aria-label="Choisir une date"
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => onDateChange(shiftDate(activeDate, 1))}
+                className="flex h-7 w-7 items-center justify-center rounded-lg text-slate-500 hover:bg-white hover:text-slate-950 transition"
+                title="Jour suivant"
+              >
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+
+              {!isToday && (
+                <button
+                  type="button"
+                  onClick={() => onDateChange(today)}
+                  className="hidden md:inline-flex ml-0.5 rounded-lg bg-emerald-600 px-2 py-1 text-[10px] font-extrabold text-white hover:bg-emerald-500 transition"
+                >
+                  Auj.
+                </button>
+              )}
+            </div>
           )}
 
           {/* Sync button */}

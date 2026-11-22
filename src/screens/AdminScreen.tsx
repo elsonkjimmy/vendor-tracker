@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Clock,
   DollarSign,
-  Download,
   LogIn,
   Package,
   RefreshCw,
@@ -17,7 +16,6 @@ import {
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
-import { exportAdminVendorsCsv } from '../lib/exportCsv'
 import { formatFCFA, formatNumber, formatShortDate, timeAgo } from '../lib/format'
 import type { AdminOverviewResponse, AdminVendorEnriched } from '../types'
 
@@ -25,7 +23,6 @@ interface AdminScreenProps {
   token: string | null
   onBack: () => void
   onLoginRequest: () => void
-  onNotify: (tone: 'success' | 'error' | 'info', title: string, detail?: string) => void
 }
 
 function buildDemoOverview(): AdminOverviewResponse {
@@ -174,7 +171,7 @@ function buildDemoOverview(): AdminOverviewResponse {
   }
 }
 
-export function AdminScreen({ token, onBack, onLoginRequest, onNotify }: AdminScreenProps) {
+export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps) {
   const [data, setData] = useState<AdminOverviewResponse | null>(null)
   const [isDemoMode, setIsDemoMode] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -286,17 +283,6 @@ export function AdminScreen({ token, onBack, onLoginRequest, onNotify }: AdminSc
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              exportAdminVendorsCsv(filteredVendors)
-              onNotify('success', 'Export CSV téléchargé', `${filteredVendors.length} vendeur(s) exporté(s).`)
-            }}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
-          >
-            <Download className="h-4 w-4 text-slate-500" />
-            <span>Export CSV</span>
-          </button>
           <button
             type="button"
             onClick={fetchData}
