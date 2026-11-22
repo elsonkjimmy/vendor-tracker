@@ -122,3 +122,12 @@ export async function setAuthSession(token: string | null, user: VendorUser | nu
   await setMeta('auth_token', token)
   await setMeta('auth_user', user)
 }
+
+export async function clearAccountData(): Promise<void> {
+  const db = await getDB()
+  const tx = db.transaction(['products', 'sheets', 'meta'], 'readwrite')
+  await tx.objectStore('products').clear()
+  await tx.objectStore('sheets').clear()
+  await tx.objectStore('meta').delete('sync_cursor')
+  await tx.done
+}
