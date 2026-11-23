@@ -52,17 +52,18 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
   const [openFaq, setOpenFaq] = useState<number | null>(0)
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-slate-900 selection:bg-emerald-500 selection:text-white">
+    <div className="min-h-screen overflow-x-clip bg-[#f8fafc] text-slate-900 selection:bg-emerald-500 selection:text-white">
       {/* Floating Glass Navbar */}
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <BrandLogo size="md" />
-            <div>
-              <span className="block font-black text-lg tracking-tight text-slate-950 leading-none">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-3.5 lg:px-8">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            <BrandLogo size="sm" className="sm:hidden" />
+            <BrandLogo size="md" className="hidden sm:flex" />
+            <div className="min-w-0">
+              <span className="block truncate font-black text-base sm:text-lg tracking-tight text-slate-950 leading-none">
                 Vendor<span className="text-emerald-600">Tracker</span>
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              <span className="hidden sm:block text-[10px] font-bold uppercase tracking-widest text-slate-400">
                 Distribution OS
               </span>
             </div>
@@ -83,21 +84,21 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
             </a>
           </nav>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={onOpenAuth}
-              className="inline-flex items-center whitespace-nowrap rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
+              className="inline-flex items-center whitespace-nowrap rounded-xl border border-slate-200 bg-white px-2.5 sm:px-3 py-2 text-[11px] sm:text-xs font-bold text-slate-700 hover:bg-slate-50 transition"
             >
               Connexion
             </button>
             <button
               type="button"
               onClick={onStartApp}
-              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl bg-slate-950 px-3.5 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-bold text-white shadow-md shadow-slate-950/15 hover:bg-emerald-600 transition active:scale-95"
+              className="inline-flex items-center gap-1 sm:gap-1.5 whitespace-nowrap rounded-xl bg-slate-950 px-2.5 sm:px-4 py-2 sm:py-2.5 text-[11px] sm:text-sm font-bold text-white shadow-md shadow-slate-950/15 hover:bg-emerald-600 transition active:scale-95"
             >
               <span>Ouvrir l'App</span>
-              <ArrowRight className="h-4 w-4 shrink-0" />
+              <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
             </button>
           </div>
         </div>
@@ -180,16 +181,16 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
             {/* Realistic Browser Window Frame */}
             <div className="relative mx-auto max-w-5xl rounded-3xl border border-slate-200/90 bg-slate-950 p-2 sm:p-3 shadow-[0_32px_80px_-20px_rgba(15,23,42,0.3)] ring-1 ring-slate-900/10">
               {/* Window Top Chrome */}
-              <div className="flex items-center justify-between px-3 pb-2.5 pt-1">
-                <div className="flex items-center gap-1.5">
+              <div className="flex items-center justify-between gap-2 px-2.5 sm:px-3 pb-2.5 pt-1">
+                <div className="flex items-center gap-1.5 shrink-0">
                   <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
                   <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
                   <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
                 </div>
-                <div className="rounded-lg bg-slate-900 px-4 py-1 text-[11px] font-medium text-slate-400 ring-1 ring-white/10">
+                <div className="min-w-0 truncate rounded-lg bg-slate-900 px-3 sm:px-4 py-1 text-[10px] sm:text-[11px] font-medium text-slate-400 ring-1 ring-white/10">
                   vendor-tracker.elsonkjimmy.workers.dev
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-400">
+                <div className="flex items-center gap-1.5 shrink-0 whitespace-nowrap text-[10px] font-bold text-emerald-400">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Synchronisé
                 </div>
@@ -269,11 +270,11 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
                           </div>
                         </div>
                         <div className="rounded-2xl border border-slate-200/80 bg-white overflow-hidden">
-                          <div className="grid grid-cols-5 bg-slate-50 px-4 py-2 text-[10px] font-bold uppercase text-slate-400">
-                            <span className="col-span-2">Produit</span>
-                            <span className="text-center">Vendu / Reçu</span>
-                            <span className="text-right">Recette</span>
-                            <span className="text-right">Bénéfice</span>
+                          <div className="grid grid-cols-12 gap-2 bg-slate-50 px-3 sm:px-4 py-2 text-[9px] sm:text-[10px] font-bold uppercase text-slate-400">
+                            <span className="col-span-4 truncate">Produit</span>
+                            <span className="col-span-2 text-center whitespace-nowrap">Vendu</span>
+                            <span className="col-span-3 text-right whitespace-nowrap">Recette</span>
+                            <span className="col-span-3 text-right whitespace-nowrap">Bénéfice</span>
                           </div>
                           {[
                             ['Pain 100 F', '680 / 720', '68 000 F', '+10 200 F'],
@@ -282,12 +283,18 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
                           ].map(([name, ratio, rev, prof]) => (
                             <div
                               key={name}
-                              className="grid grid-cols-5 items-center border-t border-slate-100 px-4 py-2.5 text-xs"
+                              className="grid grid-cols-12 gap-2 items-center border-t border-slate-100 px-3 sm:px-4 py-2.5 text-[11px] sm:text-xs"
                             >
-                              <span className="col-span-2 font-bold text-slate-900">{name}</span>
-                              <span className="text-center font-semibold text-slate-600 tabular-nums">{ratio}</span>
-                              <span className="text-right font-bold text-slate-900 tabular-nums">{rev}</span>
-                              <span className="text-right font-bold text-emerald-600 tabular-nums">{prof}</span>
+                              <span className="col-span-4 truncate font-bold text-slate-900">{name}</span>
+                              <span className="col-span-2 text-center font-semibold text-slate-600 tabular-nums whitespace-nowrap">
+                                {ratio}
+                              </span>
+                              <span className="col-span-3 text-right font-bold text-slate-900 tabular-nums whitespace-nowrap">
+                                {rev}
+                              </span>
+                              <span className="col-span-3 text-right font-bold text-emerald-600 tabular-nums whitespace-nowrap">
+                                {prof}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -674,9 +681,9 @@ export function LandingScreen({ onStartApp, onOpenDriver, onOpenAuth }: LandingS
               <button
                 type="button"
                 onClick={onStartApp}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-7 py-4 text-sm font-extrabold text-slate-950 hover:bg-emerald-400 transition"
+                className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-2xl bg-emerald-500 px-5 sm:px-7 py-4 text-sm font-extrabold text-slate-950 hover:bg-emerald-400 transition"
               >
-                <Zap className="h-4 w-4" />
+                <Zap className="h-4 w-4 shrink-0" />
                 <span>Ouvrir mon Espace Vendeur</span>
               </button>
               <button
