@@ -12,7 +12,7 @@ import {
 import { useMemo, useState } from 'react'
 import { calculateDailySheetTotals } from '../lib/calc'
 import { formatDate, formatFCFA, formatNumber, formatShortDate, getMondayOfIsoWeek, shiftIsoDate } from '../lib/format'
-import { openWhatsApp } from '../lib/share'
+import { generateSummaryCanvasBlob, shareImageBlob } from '../lib/share'
 import type { DailySheet, Product } from '../types'
 
 type PeriodMode = 'day' | 'week' | 'month'
@@ -151,10 +151,10 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
     else setMonthCursor((m) => shiftMonth(m, delta))
   }
 
-  const handleSharePeriodWhatsApp = () => {
-    const periodTitle = period === 'day' ? 'JOUR' : period === 'week' ? 'SEMAINE' : 'MOIS'
+  const handleSharePeriodWhatsApp = async () => {
+    const periodTitle = period === 'day' ? 'Jour' : period === 'week' ? 'Semaine' : 'Mois'
     const lines = [
-      `📊 *BILAN ${periodTitle} (${label.toUpperCase()}) - ${businessName.toUpperCase()}*`,
+      `📊 *BILAN ${periodTitle.toUpperCase()} (${label.toUpperCase()}) - ${businessName.toUpperCase()}*`,
       `----------------------------------------`,
       `💰 *Recette Totale : ${formatFCFA(aggregated.totalRevenue)}*`,
       `📈 *Bénéfice Net : +${formatFCFA(aggregated.totalProfit)}* (${aggregated.marginRate}%)`,
@@ -168,7 +168,29 @@ export function SummaryView({ allSheets, products, activeDate, businessName }: S
       `----------------------------------------`,
       `_Bilan généré sur VendorTracker_`,
     ]
-    openWhatsApp(lines.join('\n'))
+    const blob = await generateSummaryCanvasBlob({
+      periodTitle,
+      periodLabel: label,
+      businessName,
+      totalRevenue: aggregated.totalRevenue,
+      totalProfit: aggregated.totalProfit,
+      marginRate: aggregated.marginRate,
+      totalSupplierDue: aggregated.totalSupplierDue,
+      totalDelivered: aggregated.totalDelivered,
+      totalSold: aggregated.totalSold,
+      totalUnsold: aggregated.totalUnsold,
+      unsoldRate: aggregated.unsoldRate,
+      closedDays: aggregated.closedDays,
+      avgPerDay: aggregated.avgPerDay,
+      productBreakdown: aggregated.productBreakdown,
+    })
+    await shareImageBlob({
+      blob,
+      filename: `bilan-${period}-${activeDate}.png`,
+      title: `Bilan ${periodTitle} • ${label}`,
+      text: `Recette Totale : ${formatFCFA(aggregated.totalRevenue)}`,
+      fallbackMessage: lines.join('\n'),
+    })
   }
 
   const chartSeries = chartDays.map((date) => ({
