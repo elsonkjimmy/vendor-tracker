@@ -164,21 +164,21 @@ export function ManagerScreen({
         </div>
 
         {/* Quick Actions */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
             type="button"
             onClick={onOpenNewDelivery}
-            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 rounded-2xl bg-slate-950 py-3.5 px-5 font-bold text-xs sm:text-sm text-white shadow-md hover:bg-emerald-600 transition active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-slate-950 py-3.5 px-4 font-bold text-xs sm:text-sm text-white shadow-md hover:bg-emerald-600 transition active:scale-95"
           >
-            <PlusCircle className="h-4 w-4 text-emerald-400" />
+            <PlusCircle className="h-4 w-4 shrink-0 text-emerald-400" />
             <span>Ajouter Réception</span>
           </button>
           <button
             type="button"
             onClick={onOpenClosing}
-            className="flex-1 min-w-[150px] flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 px-5 font-bold text-xs sm:text-sm text-slate-900 shadow-xs hover:bg-slate-50 transition active:scale-95"
+            className="flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 px-4 font-bold text-xs sm:text-sm text-slate-900 shadow-xs hover:bg-slate-50 transition active:scale-95"
           >
-            <RotateCcw className="h-4 w-4 text-amber-600" />
+            <RotateCcw className="h-4 w-4 shrink-0 text-amber-600" />
             <span>Clôturer & Invendus</span>
           </button>
         </div>
@@ -195,7 +195,53 @@ export function ManagerScreen({
             </span>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-slate-200/70">
+          {/* Mobile Cards (< sm) */}
+          <div className="sm:hidden space-y-2.5">
+            {totals.products.map((p) => (
+              <div
+                key={p.product_id}
+                className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-3.5 space-y-2.5"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="font-bold text-sm text-slate-900">{p.product_name}</p>
+                      {p.returnable && (
+                        <span className="rounded-md bg-emerald-50 px-1.5 py-0.5 text-[9px] font-bold text-emerald-700">
+                          Repris
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-slate-500">
+                      {formatFCFA(p.selling_price)}
+                      {p.supplier_name ? ` • ${p.supplier_name}` : ''}
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className="font-black text-sm text-slate-950 tabular-nums">{formatFCFA(p.employee_revenue)}</p>
+                    <p className="text-[11px] font-bold text-emerald-600 tabular-nums">+{formatFCFA(p.net_profit)}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-2 rounded-xl bg-white p-2 text-center border border-slate-100 text-[11px]">
+                  <div>
+                    <span className="block text-[9px] font-bold uppercase text-slate-400">Reçu</span>
+                    <span className="font-bold text-slate-900 tabular-nums">{p.delivered}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-bold uppercase text-slate-400">Invendu</span>
+                    <span className="font-bold text-amber-700 tabular-nums">{p.unsold}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-bold uppercase text-slate-400">Vendu</span>
+                    <span className="font-bold text-emerald-700 tabular-nums">{p.sold}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table (>= sm) */}
+          <div className="hidden sm:block overflow-x-auto rounded-2xl border border-slate-200/70">
             <table className="w-full text-left text-xs">
               <thead className="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/70">
                 <tr>
