@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { GainHero } from '../components/GainHero'
 import { SettingsView } from '../components/SettingsView'
 import { formatFCFA, formatNumber } from '../lib/format'
-import { generateReceiptCanvasBlob, generateWhatsAppMessage, shareImageBlob } from '../lib/share'
+import { generateReceiptCanvasBlob, generateWhatsAppMessage, openWhatsApp, shareImageBlob } from '../lib/share'
 import type { ClientBoutique, DailySheet, DayTotals, Product, VendorUser } from '../types'
 
 interface DriverScreenProps {
