@@ -123,11 +123,11 @@ export function DeliveryModal({ products, onSave, onClose }: DeliveryModalProps)
           </div>
         </form>
 
-        <div className="border-t border-zinc-100 pt-3 flex gap-3">
+        <div className="border-t border-zinc-100 pt-3 flex gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-2xl border border-zinc-200 py-3 font-bold text-sm text-zinc-700 hover:bg-zinc-50"
+            className="flex-1 rounded-2xl border border-zinc-200 px-3 py-3 font-bold text-xs sm:text-sm text-zinc-700 hover:bg-zinc-50"
           >
             Annuler
           </button>
@@ -135,9 +135,9 @@ export function DeliveryModal({ products, onSave, onClose }: DeliveryModalProps)
             type="button"
             onClick={handleSubmit}
             disabled={saving}
-            className="flex-1 rounded-2xl bg-emerald-600 py-3 font-bold text-sm text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 disabled:opacity-50"
+            className="flex-1 rounded-2xl bg-emerald-600 px-3 py-3 font-bold text-xs sm:text-sm text-white shadow-md shadow-emerald-600/20 hover:bg-emerald-700 disabled:opacity-50"
           >
-            {saving ? 'Enregistrement...' : 'Valider la réception'}
+            {saving ? 'Enregistrement...' : 'Valider réception'}
           </button>
         </div>
       </div>
@@ -284,11 +284,11 @@ export function ClosingModal({
           </div>
         </form>
 
-        <div className="border-t border-zinc-100 pt-3 flex gap-3">
+        <div className="border-t border-zinc-100 pt-3 flex gap-2.5 sm:gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 rounded-2xl border border-zinc-200 py-3 font-bold text-sm text-zinc-700 hover:bg-zinc-50"
+            className="flex-1 rounded-2xl border border-zinc-200 px-3 py-3 font-bold text-xs sm:text-sm text-zinc-700 hover:bg-zinc-50"
           >
             Annuler
           </button>
@@ -296,9 +296,9 @@ export function ClosingModal({
             type="button"
             onClick={handleSubmit}
             disabled={saving}
-            className="flex-1 rounded-2xl bg-zinc-900 py-3 font-bold text-sm text-white shadow-md hover:bg-zinc-800 disabled:opacity-50"
+            className="flex-1 rounded-2xl bg-zinc-900 px-3 py-3 font-bold text-xs sm:text-sm text-white shadow-md hover:bg-zinc-800 disabled:opacity-50"
           >
-            {saving ? 'Validation...' : 'Valider la clôture du jour'}
+            {saving ? 'Validation...' : 'Valider la clôture'}
           </button>
         </div>
       </div>
