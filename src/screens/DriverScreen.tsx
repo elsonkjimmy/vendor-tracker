@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { GainHero } from '../components/GainHero'
 import { SettingsView } from '../components/SettingsView'
 import { formatFCFA, formatNumber } from '../lib/format'
-import { generateReceiptCanvasBlob, generateWhatsAppMessage, openWhatsApp } from '../lib/share'
+import { generateReceiptCanvasBlob, generateWhatsAppMessage, shareImageBlob } from '../lib/share'
 import type { ClientBoutique, DailySheet, DayTotals, Product, VendorUser } from '../types'
 
 interface DriverScreenProps {
@@ -43,33 +43,21 @@ export function DriverScreen({
 }: DriverScreenProps) {
   const [sharing, setSharing] = useState(false)
 
-  const handleShareWhatsAppText = () => {
-    const msg = generateWhatsAppMessage(totals, user?.name || 'Livreur Tournée')
-    openWhatsApp(msg)
-  }
-
   const handleShareWhatsAppImage = async () => {
     setSharing(true)
     try {
-      const blob = await generateReceiptCanvasBlob(totals, user?.name || 'Livreur Tournée')
-      const file = new File([blob], `bilan-${totals.date}.png`, { type: 'image/png' })
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Bilan Tournée ${totals.date}`,
-          text: `Recette Caisse : ${formatFCFA(totals.total_employee_revenue)}`,
-        })
-      } else {
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `bilan-${totals.date}.png`
-        a.click()
-        URL.revokeObjectURL(url)
-        onNotify('success', 'Image du reçu téléchargée', 'Prête à être envoyée sur WhatsApp.')
-      }
+      const business = user?.name || 'Livreur Tournée'
+      const blob = await generateReceiptCanvasBlob(totals, business)
+      await shareImageBlob({
+        blob,
+        filename: `bilan-${totals.date}.png`,
+        title: `Bilan Tournée ${totals.date}`,
+        text: `Recette Caisse : ${formatFCFA(totals.total_employee_revenue)}`,
+        fallbackMessage: generateWhatsAppMessage(totals, business),
+        onDownloaded: () => onNotify('success', 'Image du reçu téléchargée', 'Prête à être envoyée sur WhatsApp.'),
+      })
     } catch {
-      handleShareWhatsAppText()
+      onNotify('error', 'Partage impossible', 'Impossible de générer l’image du reçu.')
     } finally {
       setSharing(false)
     }
@@ -85,11 +73,12 @@ export function DriverScreen({
           bottomAction={
             <button
               type="button"
-              onClick={handleShareWhatsAppText}
-              className="flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-white/30 transition active:scale-95"
+              onClick={handleShareWhatsAppImage}
+              disabled={sharing}
+              className="flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1.5 text-xs font-bold text-white hover:bg-white/30 transition active:scale-95 disabled:opacity-50"
             >
               <Share2 className="h-3.5 w-3.5" />
-              <span>WhatsApp</span>
+              <span>{sharing ? 'Génération...' : 'WhatsApp'}</span>
             </button>
           }
         />
