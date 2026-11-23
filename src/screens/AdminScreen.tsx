@@ -262,35 +262,35 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 border-b border-slate-200/80 pb-4 sm:pb-5">
+        <div className="flex items-start sm:items-center gap-3 min-w-0">
           <button
             type="button"
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-2xs hover:bg-slate-50 transition active:scale-95"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-white shadow-2xs hover:bg-slate-50 transition active:scale-95"
           >
             <ArrowLeft className="h-5 w-5 text-slate-700" />
           </button>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-black text-2xl tracking-tight text-slate-950">Supervision Globale</h1>
-              <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-extrabold text-purple-800">
-                <ShieldCheck className="h-3.5 w-3.5" />
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-black text-xl sm:text-2xl tracking-tight text-slate-950">Supervision Globale</h1>
+              <span className="inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-purple-100 px-2.5 py-0.5 text-[11px] sm:text-xs font-extrabold text-purple-800">
+                <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
                 Super Admin
               </span>
             </div>
-            <p className="text-xs font-medium text-slate-500">
+            <p className="mt-0.5 text-xs font-medium text-slate-500">
               Vue consolidée des vendeurs, recettes et taux de clôture du réseau
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={fetchData}
             disabled={loading}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-600 transition active:scale-95 disabled:opacity-50"
+            className="inline-flex w-full sm:w-auto items-center justify-center gap-1.5 rounded-xl bg-slate-950 px-4 py-2.5 text-xs font-bold text-white hover:bg-emerald-600 transition active:scale-95 disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             <span>Actualiser</span>
@@ -299,61 +299,61 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="card-elevated rounded-3xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">CA Consolidé</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
-              <DollarSign className="h-5 w-5" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="card-elevated rounded-3xl p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400">CA Consolidé</span>
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-emerald-50 text-emerald-700">
+              <DollarSign className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
-          <p className="mt-3 font-black text-2xl sm:text-3xl tracking-tight text-slate-950 tabular-nums">
+          <p className="mt-2.5 sm:mt-3 font-black text-lg sm:text-2xl lg:text-3xl tracking-tight text-slate-950 tabular-nums">
             {formatFCFA(stats.total_revenue_recorded)}
           </p>
-          <p className="mt-1 text-xs font-semibold text-emerald-600 flex items-center gap-1">
-            <TrendingUp className="h-3.5 w-3.5" />
-            <span>{stats.closed_sheets_count} fiches clôturées</span>
+          <p className="mt-1 text-[11px] sm:text-xs font-semibold text-emerald-600 flex items-center gap-1">
+            <TrendingUp className="h-3.5 w-3.5 shrink-0" />
+            <span>{stats.closed_sheets_count} clôturées</span>
           </p>
         </div>
 
-        <div className="card-elevated rounded-3xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Vendeurs & Dépôts</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-sky-50 text-sky-700">
-              <Users className="h-5 w-5" />
+        <div className="card-elevated rounded-3xl p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Vendeurs</span>
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-sky-50 text-sky-700">
+              <Users className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
-          <p className="mt-3 font-black text-2xl sm:text-3xl tracking-tight text-slate-950 tabular-nums">
+          <p className="mt-2.5 sm:mt-3 font-black text-lg sm:text-2xl lg:text-3xl tracking-tight text-slate-950 tabular-nums">
             {stats.total_vendors}
           </p>
-          <p className="mt-1 text-xs font-semibold text-sky-600">
-            {stats.active_vendors_7d} actifs ces 7 derniers jours
+          <p className="mt-1 text-[11px] sm:text-xs font-semibold text-sky-600">
+            {stats.active_vendors_7d} actifs (7j)
           </p>
         </div>
 
-        <div className="card-elevated rounded-3xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Articles Vendus</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-amber-700">
-              <Package className="h-5 w-5" />
+        <div className="card-elevated rounded-3xl p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Vendus</span>
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-amber-50 text-amber-700">
+              <Package className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
-          <p className="mt-3 font-black text-2xl sm:text-3xl tracking-tight text-slate-950 tabular-nums">
-            {formatNumber(stats.total_items_sold)} <span className="text-sm font-bold text-slate-400">pcs</span>
+          <p className="mt-2.5 sm:mt-3 font-black text-lg sm:text-2xl lg:text-3xl tracking-tight text-slate-950 tabular-nums">
+            {formatNumber(stats.total_items_sold)} <span className="text-xs sm:text-sm font-bold text-slate-400">pcs</span>
           </p>
-          <p className="mt-1 text-xs font-medium text-slate-500">
+          <p className="mt-1 text-[11px] sm:text-xs font-medium text-slate-500">
             {stats.total_products_count} produits actifs
           </p>
         </div>
 
-        <div className="card-elevated rounded-3xl p-5">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Taux de Clôture</span>
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-purple-50 text-purple-700">
-              <CheckCircle2 className="h-5 w-5" />
+        <div className="card-elevated rounded-3xl p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-wider text-slate-400">Clôture</span>
+            <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-purple-50 text-purple-700">
+              <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
             </div>
           </div>
-          <p className="mt-3 font-black text-2xl sm:text-3xl tracking-tight text-slate-950 tabular-nums">
+          <p className="mt-2.5 sm:mt-3 font-black text-lg sm:text-2xl lg:text-3xl tracking-tight text-slate-950 tabular-nums">
             {stats.closing_rate_percent}%
           </p>
           <div className="mt-2.5 h-2 w-full rounded-full bg-slate-100 overflow-hidden">
@@ -366,21 +366,21 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
       </div>
 
       {/* 7-Days Trend Chart & Recent Activity Stream */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 card-elevated rounded-3xl p-6 space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 card-elevated rounded-3xl p-4 sm:p-6 space-y-4">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
               <h2 className="font-bold text-base text-slate-950">Activité des 7 derniers jours</h2>
               <p className="text-xs text-slate-500">Évolution quotidienne des recettes enregistrées</p>
             </div>
-            <BarChart3 className="h-5 w-5 text-slate-400" />
+            <BarChart3 className="h-5 w-5 shrink-0 text-slate-400" />
           </div>
 
-          <div className="mt-6 flex h-52 items-end gap-3 sm:gap-5 pt-4 border-b border-slate-100 pb-2">
+          <div className="mt-6 flex h-44 sm:h-52 items-end gap-1.5 sm:gap-5 pt-4 border-b border-slate-100 pb-2">
             {daily_trends.map((trend) => {
               const heightPercent = Math.max(8, Math.round((trend.revenue / maxTrendRevenue) * 100))
               return (
-                <div key={trend.date} className="group relative flex flex-1 flex-col items-center h-full justify-end">
+                <div key={trend.date} className="group relative flex flex-1 min-w-0 flex-col items-center h-full justify-end">
                   <div className="pointer-events-none absolute -top-14 z-20 hidden rounded-xl bg-slate-950 px-3 py-1.5 text-center text-[10px] font-bold text-white shadow-xl group-hover:block whitespace-nowrap">
                     <div>{formatShortDate(trend.date)}</div>
                     <div className="text-emerald-400">{formatFCFA(trend.revenue)}</div>
@@ -390,7 +390,7 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
                     className="w-full max-w-[48px] rounded-t-xl bg-gradient-to-t from-slate-900 via-emerald-700 to-emerald-400 transition-all duration-300 group-hover:brightness-110"
                     style={{ height: `${heightPercent}%` }}
                   />
-                  <span className="mt-2 text-[10px] font-bold text-slate-400 truncate">
+                  <span className="mt-2 max-w-full text-[9px] sm:text-[10px] font-bold text-slate-400 truncate">
                     {formatShortDate(trend.date)}
                   </span>
                 </div>
@@ -438,32 +438,32 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
       </div>
 
       {/* Vendors Table */}
-      <div className="card-elevated rounded-3xl p-6 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 className="font-black text-xl text-slate-950 tracking-tight">Répertoire des Vendeurs & Dépôts</h2>
+      <div className="card-elevated rounded-3xl p-4 sm:p-6 space-y-4 sm:space-y-5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 sm:gap-4">
+          <div className="min-w-0">
+            <h2 className="font-black text-lg sm:text-xl text-slate-950 tracking-tight">Répertoire des Vendeurs & Dépôts</h2>
             <p className="text-xs text-slate-500">Consultez les bilans, caisses et régularité de chaque point de vente</p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
+            <div className="relative flex-1 sm:flex-initial">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
                 placeholder="Rechercher nom, tél..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="h-10 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-4 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
+                className="h-10 w-full sm:w-52 rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-4 text-xs font-medium text-slate-900 placeholder:text-slate-400 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
               />
             </div>
 
-            <div className="flex rounded-xl bg-slate-100 p-1 text-xs font-bold text-slate-600">
+            <div className="grid grid-cols-4 sm:flex rounded-xl bg-slate-100 p-1 text-[11px] sm:text-xs font-bold text-slate-600">
               {(['all', 'active', 'new', 'dormant'] as const).map((status) => (
                 <button
                   key={status}
                   type="button"
                   onClick={() => setStatusFilter(status)}
-                  className={`rounded-lg px-2.5 py-1.5 transition ${
+                  className={`rounded-lg px-2 sm:px-2.5 py-1.5 text-center transition ${
                     statusFilter === status ? 'bg-white text-slate-950 shadow-2xs' : 'hover:text-slate-900'
                   }`}
                 >
@@ -480,7 +480,73 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-slate-200/70">
+        {/* Mobile Vendor Cards (< sm) */}
+        <div className="sm:hidden space-y-2.5">
+          {filteredVendors.length === 0 ? (
+            <p className="py-8 text-center text-xs text-slate-400">Aucun vendeur ne correspond aux critères</p>
+          ) : (
+            filteredVendors.map((v) => (
+              <div
+                key={v.id}
+                onClick={() => setSelectedVendor(v)}
+                className="rounded-2xl border border-slate-200/80 bg-slate-50/60 p-3.5 space-y-2.5 active:bg-slate-100 transition cursor-pointer"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <p className="font-bold text-sm text-slate-950">{v.name}</p>
+                      {v.is_admin && (
+                        <span className="rounded-full bg-purple-100 px-2 py-0.5 text-[9px] font-bold text-purple-700">
+                          Admin
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] font-mono text-slate-500 mt-0.5">{v.phone}</p>
+                    {v.email && <p className="text-[10px] text-slate-400 truncate">{v.email}</p>}
+                  </div>
+                  <span
+                    className={`shrink-0 inline-flex rounded-full px-2 py-0.5 text-[10px] font-extrabold ${
+                      v.status === 'active'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : v.status === 'new'
+                          ? 'bg-sky-100 text-sky-800'
+                          : 'bg-slate-200 text-slate-600'
+                    }`}
+                  >
+                    {v.status === 'active' ? 'Actif' : v.status === 'new' ? 'Nouveau' : 'Dormant'}
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 rounded-xl bg-white p-2.5 border border-slate-100 text-center">
+                  <div>
+                    <span className="block text-[9px] font-bold uppercase text-slate-400">CA Réalisé</span>
+                    <span className="font-black text-xs text-slate-950 tabular-nums">{formatFCFA(v.total_revenue)}</span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-bold uppercase text-slate-400">Clôtures</span>
+                    <span className="font-bold text-xs text-slate-800 tabular-nums">
+                      {v.closed_sheets_count}/{v.sheets_count}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="block text-[9px] font-bold uppercase text-slate-400">Activité</span>
+                    <span className="font-semibold text-[11px] text-slate-600">
+                      {v.last_active_at ? timeAgo(v.last_active_at) : 'Jamais'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <span className="inline-flex items-center rounded-xl bg-slate-950 px-3 py-1.5 text-[11px] font-bold text-white">
+                    Détails & Mot de passe
+                  </span>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="hidden sm:block overflow-x-auto rounded-2xl border border-slate-200/70">
           <table className="w-full text-left text-xs">
             <thead className="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-200/70">
               <tr>
@@ -560,38 +626,38 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
 
       {/* Vendor Details Modal */}
       {selectedVendor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-4 animate-fade-up">
-          <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl space-y-5 ring-1 ring-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div>
-                <h3 className="font-black text-lg text-slate-950">{selectedVendor.name}</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4 animate-fade-up">
+          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 ring-1 ring-slate-200">
+            <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div className="min-w-0">
+                <h3 className="font-black text-base sm:text-lg text-slate-950 truncate">{selectedVendor.name}</h3>
                 <p className="text-xs text-slate-500">Tél : {selectedVendor.phone}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedVendor(null)}
-                className="rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200 transition"
+                className="shrink-0 rounded-full bg-slate-100 p-2 text-slate-500 hover:bg-slate-200 transition"
               >
                 ✕
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 text-center">
-              <div className="rounded-2xl bg-slate-50 p-3 border border-slate-200/70">
-                <p className="text-[10px] font-bold uppercase text-slate-400">Total Encaissé</p>
-                <p className="font-black text-sm text-slate-950 mt-1 tabular-nums">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+              <div className="rounded-2xl bg-slate-50 p-2.5 sm:p-3 border border-slate-200/70">
+                <p className="text-[9px] sm:text-[10px] font-bold uppercase text-slate-400">Encaissé</p>
+                <p className="font-black text-xs sm:text-sm text-slate-950 mt-1 tabular-nums">
                   {formatFCFA(selectedVendor.total_revenue)}
                 </p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-3 border border-slate-200/70">
-                <p className="text-[10px] font-bold uppercase text-slate-400">Vendus</p>
-                <p className="font-black text-sm text-slate-950 mt-1 tabular-nums">
+              <div className="rounded-2xl bg-slate-50 p-2.5 sm:p-3 border border-slate-200/70">
+                <p className="text-[9px] sm:text-[10px] font-bold uppercase text-slate-400">Vendus</p>
+                <p className="font-black text-xs sm:text-sm text-slate-950 mt-1 tabular-nums">
                   {formatNumber(selectedVendor.total_sold_units)} pcs
                 </p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-3 border border-slate-200/70">
-                <p className="text-[10px] font-bold uppercase text-slate-400">Catalogue</p>
-                <p className="font-black text-sm text-slate-950 mt-1 tabular-nums">
+              <div className="rounded-2xl bg-slate-50 p-2.5 sm:p-3 border border-slate-200/70">
+                <p className="text-[9px] sm:text-[10px] font-bold uppercase text-slate-400">Catalogue</p>
+                <p className="font-black text-xs sm:text-sm text-slate-950 mt-1 tabular-nums">
                   {selectedVendor.products_count} réf.
                 </p>
               </div>
@@ -632,15 +698,15 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
 
             {/* Super Admin Password Reset for this account */}
             {token && !isDemoMode && (
-              <div className="rounded-2xl border border-purple-200/80 bg-purple-50/50 p-4 space-y-2.5">
+              <div className="rounded-2xl border border-purple-200/80 bg-purple-50/50 p-3.5 sm:p-4 space-y-2.5">
                 <p className="text-xs font-extrabold text-purple-950">Réinitialiser le mot de passe de ce compte</p>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   <input
                     type="text"
                     placeholder="Nouveau mot de passe (4 car. min)"
                     value={newPwd}
                     onChange={(e) => setNewPwd(e.target.value)}
-                    className="flex-1 rounded-xl border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-slate-900 focus:border-purple-600 focus:outline-hidden"
+                    className="min-w-0 flex-1 rounded-xl border border-purple-200 bg-white px-3 py-2 text-xs font-semibold text-slate-900 focus:border-purple-600 focus:outline-hidden"
                   />
                   <button
                     type="button"
@@ -658,7 +724,7 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
                         setResettingPwd(false)
                       }
                     }}
-                    className="rounded-xl bg-purple-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-purple-800 disabled:opacity-50 transition"
+                    className="shrink-0 rounded-xl bg-purple-700 px-3.5 py-2 text-xs font-bold text-white hover:bg-purple-800 disabled:opacity-50 transition"
                   >
                     {resettingPwd ? '...' : 'Appliquer'}
                   </button>
