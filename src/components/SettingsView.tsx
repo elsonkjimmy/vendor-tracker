@@ -270,14 +270,14 @@ export function SettingsView({
               </div>
             </div>
 
-            <div className="flex gap-2.5">
+            <div className="flex flex-col sm:flex-row gap-2.5">
               <input
                 type="password"
                 maxLength={4}
                 placeholder="Nouveau PIN (4 chiffres)"
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value.replace(/\D/g, ''))}
-                className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold tracking-widest text-slate-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
+                className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold tracking-widest text-slate-900 focus:border-emerald-600 focus:bg-white focus:outline-hidden"
               />
               <button
                 type="button"
@@ -290,7 +290,7 @@ export function SettingsView({
                     onNotify('error', 'Code PIN invalide', 'Le code PIN doit comporter exactement 4 chiffres.')
                   }
                 }}
-                className="rounded-2xl bg-slate-950 px-5 py-3 text-xs font-extrabold text-white hover:bg-emerald-600 transition"
+                className="shrink-0 rounded-2xl bg-slate-950 px-5 py-3 text-xs font-extrabold text-white hover:bg-emerald-600 transition"
               >
                 Modifier
               </button>
