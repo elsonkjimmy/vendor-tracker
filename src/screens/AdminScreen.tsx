@@ -15,6 +15,7 @@ import {
   Users,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { api } from '../lib/api'
 import { formatFCFA, formatNumber, formatShortDate, timeAgo } from '../lib/format'
 import type { AdminOverviewResponse, AdminVendorEnriched } from '../types'
@@ -625,9 +626,10 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
       </div>
 
       {/* Vendor Details Modal */}
-      {selectedVendor && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4 animate-fade-up">
-          <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 ring-1 ring-slate-200">
+      {selectedVendor &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-xs p-3 sm:p-4">
+            <div className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-3xl bg-white p-4 sm:p-6 shadow-2xl space-y-4 sm:space-y-5 ring-1 ring-slate-200 animate-fade-up">
             <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div className="min-w-0">
                 <h3 className="font-black text-base sm:text-lg text-slate-950 truncate">{selectedVendor.name}</h3>
@@ -744,9 +746,10 @@ export function AdminScreen({ token, onBack, onLoginRequest }: AdminScreenProps)
             >
               Fermer
             </button>
-          </div>
-        </div>
-      )}
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   )
 }
