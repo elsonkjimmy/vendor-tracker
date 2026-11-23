@@ -125,22 +125,22 @@ export function HistoryCalendar({ allSheets, products, selectedDate, onOpenDate 
       {/* Main Split: Calendar (left) + Selected Day Inspector (right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Calendar Card */}
-        <div className="lg:col-span-7 card-elevated rounded-3xl p-5 sm:p-6 space-y-5">
+        <div className="lg:col-span-7 card-elevated rounded-3xl p-4 sm:p-6 space-y-5">
           {/* Month Switcher */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700">
                 <CalendarDays className="h-5 w-5" />
               </div>
-              <div>
-                <h2 className="font-black text-lg text-slate-950 capitalize">{monthLabel}</h2>
+              <div className="min-w-0">
+                <h2 className="font-black text-base sm:text-lg text-slate-950 capitalize">{monthLabel}</h2>
                 <p className="text-[11px] font-medium text-slate-500">
                   Cliquez sur une date pour inspecter la journée
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center justify-end gap-1.5 shrink-0">
               <button
                 type="button"
                 onClick={() => goMonth(-1)}
