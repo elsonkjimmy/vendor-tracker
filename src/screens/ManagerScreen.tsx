@@ -6,7 +6,7 @@ import { ProductsView } from '../components/ProductsView'
 import { SettingsView } from '../components/SettingsView'
 import { SummaryView } from '../components/SummaryView'
 import { formatFCFA, formatNumber } from '../lib/format'
-import { generateReceiptCanvasBlob, generateWhatsAppMessage, openWhatsApp } from '../lib/share'
+import { generateReceiptCanvasBlob, generateWhatsAppMessage, shareImageBlob } from '../lib/share'
 import type { DailySheet, DayTotals, Product, VendorUser } from '../types'
 
 interface ManagerScreenProps {
@@ -52,33 +52,21 @@ export function ManagerScreen({
 }: ManagerScreenProps) {
   const [sharing, setSharing] = useState(false)
 
-  const handleShareWhatsAppText = () => {
-    const msg = generateWhatsAppMessage(totals, user?.name || 'Mon Point de Vente')
-    openWhatsApp(msg)
-  }
-
   const handleShareWhatsAppImage = async () => {
     setSharing(true)
     try {
-      const blob = await generateReceiptCanvasBlob(totals, user?.name || 'Mon Point de Vente')
-      const file = new File([blob], `bilan-${totals.date}.png`, { type: 'image/png' })
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: `Bilan Journalier ${totals.date}`,
-          text: `Recette Caisse : ${formatFCFA(totals.total_employee_revenue)}`,
-        })
-      } else {
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `bilan-${totals.date}.png`
-        a.click()
-        URL.revokeObjectURL(url)
-        onNotify('success', 'Image du reçu téléchargée', 'Prête à être envoyée sur WhatsApp.')
-      }
+      const business = user?.name || 'Mon Point de Vente'
+      const blob = await generateReceiptCanvasBlob(totals, business)
+      await shareImageBlob({
+        blob,
+        filename: `bilan-${totals.date}.png`,
+        title: `Bilan Journalier ${totals.date}`,
+        text: `Recette Caisse : ${formatFCFA(totals.total_employee_revenue)}`,
+        fallbackMessage: generateWhatsAppMessage(totals, business),
+        onDownloaded: () => onNotify('success', 'Image du reçu téléchargée', 'Prête à être envoyée sur WhatsApp.'),
+      })
     } catch {
-      handleShareWhatsAppText()
+      onNotify('error', 'Partage impossible', 'Impossible de générer l’image du reçu.')
     } finally {
       setSharing(false)
     }
